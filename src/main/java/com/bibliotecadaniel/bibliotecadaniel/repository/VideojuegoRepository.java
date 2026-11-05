@@ -25,7 +25,42 @@ public class VideojuegoRepository {
 
         List<VideojuegoDTO> videojuegos = new ArrayList<>();
 
-        String sql = "SELECT id, titulo, anio_lanzamiento, pegi, " + "id_desarrolladora FROM videojuegos";
+
+        String sql = """
+        SELECT
+            v.id,
+            v.titulo,
+            v.anio_lanzamiento,
+            v.pegi,
+            v.id_desarrolladora,
+            d.nombre AS nombre_desarrolladora,
+            COUNT(c.id) AS copias_totales,
+            COUNT(
+                CASE
+                    WHEN c.activa = 1
+                    AND NOT EXISTS (
+                        SELECT 1
+                        FROM prestamos p
+                        WHERE p.id_copia = c.id
+                        AND p.fecha_devolucion IS NULL
+                    )
+                    THEN 1
+                END
+            ) AS copias_disponibles
+        FROM videojuegos v
+        INNER JOIN desarrolladoras d
+            ON v.id_desarrolladora = d.id
+        LEFT JOIN copias c
+            ON v.id = c.id_videojuego
+        GROUP BY
+            v.id,
+            v.titulo,
+            v.anio_lanzamiento,
+            v.pegi,
+            v.id_desarrolladora,
+            d.nombre
+        ORDER BY v.id """;
+
 
         try (Connection conexion = dataSource.getConnection();
              PreparedStatement ps = conexion.prepareStatement(sql);
@@ -39,8 +74,19 @@ public class VideojuegoRepository {
                         rs.getInt("anio_lanzamiento"),
                         rs.getInt("pegi"),
                         rs.getInt("id_desarrolladora")
+
+                );
+                videojuego.setNombreDesarrolladora(
+                        rs.getString("nombre_desarrolladora")
                 );
 
+                videojuego.setCopiasTotales(
+                        rs.getInt("copias_totales")
+                );
+
+                videojuego.setCopiasDisponibles(
+                        rs.getInt("copias_disponibles")
+                );
                 videojuegos.add(videojuego);
             }
 
