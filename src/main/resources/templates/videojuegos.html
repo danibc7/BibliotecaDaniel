@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>BibliotecaDaniel - Videojuegos</title>
+</head>
+<body>
+<h1>Biblioteca de Videojuegos</h1>
+<h2>Listado de Videojuegos</h2>
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Título</th>
+        <th>Año de lanzamiento</th>
+        <th>PEGI</th>
+        <th>ID Desarrolladora</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="videojuego : ${videojuegos}">
+        <td th:text="${videojuego.id}"></td>
+        <td th:text="${videojuego.titulo}"></td>
+        <td th:text="${videojuego.anioLanzamiento}"></td>
+        <td th:text="${videojuego.pegi}"></td>
+        <td th:text="${videojuego.idDesarrolladora}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
