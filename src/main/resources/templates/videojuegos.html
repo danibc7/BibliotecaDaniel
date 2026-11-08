@@ -12,7 +12,12 @@
 <h1>Biblioteca de Videojuegos</h1>
 <h2>Listado de Videojuegos</h2>
 
-<form th:action="@{/videojuegos}" method="get">
+<a th:href="@{/videojuegos/nuevo}">Añadir nuevo videojuego</a>
+
+<br><br>
+
+<form class="form" th:action="@{/videojuegos}" method="post">
+
 
     <label for="titulo">Título:</label>
     <input type="text" id="titulo" name="titulo" th:value="${titulo}">

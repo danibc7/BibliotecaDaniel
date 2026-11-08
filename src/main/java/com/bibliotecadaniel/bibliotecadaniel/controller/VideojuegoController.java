@@ -4,6 +4,7 @@ import com.bibliotecadaniel.bibliotecadaniel.service.VideojuegoService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.bibliotecadaniel.bibliotecadaniel.service.DesarrolladoraService;
 
@@ -47,6 +48,47 @@ public class VideojuegoController {
 
         return "videojuegos";
     }
+
+
+    @GetMapping("/videojuegos/nuevo")
+    public String mostrarFormularioNuevo(Model model) {
+
+        model.addAttribute("desarrolladoras", desarrolladoraService.listarTodas());
+
+        return "nuevo-videojuego";
+    }
+
+    @PostMapping("/videojuegos/nuevo")
+    public String guardarVideojuego(
+            @RequestParam String titulo,
+            @RequestParam int anioLanzamiento,
+            @RequestParam int pegi,
+            @RequestParam int idDesarrolladora,
+            Model model) {
+
+        try {
+
+            videojuegoService.guardarVideojuego(titulo, anioLanzamiento, pegi, idDesarrolladora);
+
+            return "redirect:/videojuegos";
+
+        } catch (IllegalArgumentException e) {
+
+            model.addAttribute("error", e.getMessage());
+
+            model.addAttribute("titulo", titulo);
+            model.addAttribute("anioLanzamiento", anioLanzamiento);
+            model.addAttribute("pegi", pegi);
+            model.addAttribute("idDesarrolladora", idDesarrolladora);
+
+            model.addAttribute("desarrolladoras", desarrolladoraService.listarTodas());
+
+            return "nuevo-videojuego";
+        }
+
+    }
+
+
 
 
 }

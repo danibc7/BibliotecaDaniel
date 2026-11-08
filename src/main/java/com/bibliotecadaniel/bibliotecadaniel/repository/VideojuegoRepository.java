@@ -135,4 +135,28 @@ public class VideojuegoRepository {
     public List<VideojuegoDTO> listarTodos() {
         return buscarPorTitulo("", null, null,null,false);
     }
+
+    public void guardarVideojuego(String titulo, int anioLanzamiento, int pegi, int idDesarrolladora) {
+
+        String sql = """
+            INSERT INTO videojuegos
+            (titulo, anio_lanzamiento, pegi, id_desarrolladora)
+            VALUES (?, ?, ?, ?)
+            """;
+
+        try (Connection conexion = dataSource.getConnection();
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setString(1, titulo);
+            ps.setInt(2, anioLanzamiento);
+            ps.setInt(3, pegi);
+            ps.setInt(4, idDesarrolladora);
+
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al guardar el videojuego", e);
+        }
+    }
+
 }

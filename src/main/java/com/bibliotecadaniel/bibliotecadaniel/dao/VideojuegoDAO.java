@@ -25,4 +25,7 @@ public class VideojuegoDAO {
         return videojuegoRepository.buscarPorTitulo(titulo, idDesarrolladora, anioDesde, pegiMaximo, soloDisponibles);
 
     }
+    public void guardarVideojuego(String titulo, int anioLanzamiento, int pegi, int idDesarrolladora){
+        videojuegoRepository.guardarVideojuego(titulo,anioLanzamiento,pegi,idDesarrolladora);
+    }
 }

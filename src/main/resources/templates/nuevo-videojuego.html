@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Añadir videojuego - GameVault</title>
+
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/tablas.css}">
+    <link rel="stylesheet" th:href="@{/css/formularios.css}">
+</head>
+
+<body>
+
+<h1>Añadir nuevo videojuego</h1>
+
+<div th:if="${error}" style="color: red;">
+    <p th:text="${error}"></p>
+</div>
+
+
+<form class="form" th:action="@{/videojuegos/nuevo}" method="post">
+    <label for="titulo">Título:</label>
+    <input type="text" id="titulo" name="titulo" th:value="${titulo}" required>
+    <br><br>
+
+    <label for="anioLanzamiento">Año de lanzamiento:</label>
+    <input type="number" id="anioLanzamiento" name="anioLanzamiento" min="1970" th:value="${anioLanzamiento}" required>
+    <br><br>
+
+    <label for="pegi">Clasificación PEGI:</label>
+    <select id="pegi" name="pegi" required>
+        <option value="">Selecciona un PEGI</option>
+        <option value="3" th:selected="${pegi == 3}">PEGI 3</option>
+        <option value="7" th:selected="${pegi == 7}">PEGI 7</option>
+        <option value="12" th:selected="${pegi == 12}">PEGI 12</option>
+        <option value="16" th:selected="${pegi == 16}">PEGI 16</option>
+        <option value="18" th:selected="${pegi == 18}">PEGI 18</option>
+    </select>
+    <br><br>
+
+    <label for="idDesarrolladora">Desarrolladora:</label>
+    <select id="idDesarrolladora" name="idDesarrolladora" required>
+
+        <option value="">Selecciona una desarrolladora</option>
+
+        <option th:each="desarrolladora : ${desarrolladoras}"
+                th:value="${desarrolladora.id}"
+                th:text="${desarrolladora.nombre}"
+                th:selected="${desarrolladora.id == idDesarrolladora}">
+        </option>
+
+    </select>
+    <br><br>
+
+    <input type="submit" value="Guardar videojuego">
+
+</form>
+
+<a th:href="@{/videojuegos}">Volver al listado</a>
+
+</body>
+</html>

@@ -49,4 +49,29 @@ public class DesarrolladoraRepository {
 
         return desarrolladoras;
     }
+
+    public boolean existePorId(int idDesarrolladora) {
+
+        String sql = "SELECT COUNT(*) FROM desarrolladoras WHERE id = ?";
+
+        try (Connection conexion = dataSource.getConnection();
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idDesarrolladora);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(
+                    "Error al comprobar la desarrolladora", e);
+        }
+
+        return false;
+    }
+
 }

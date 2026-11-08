@@ -19,4 +19,11 @@ public class DesarrolladoraService {
     public List<DesarrolladoraDTO> listarTodas() {
         return desarrolladoraDAO.listarTodas();
     }
+
+
+    public boolean existePorId(int idDesarrolladora) {
+
+        return desarrolladoraDAO.existePorId(idDesarrolladora);
+    }
+
 }

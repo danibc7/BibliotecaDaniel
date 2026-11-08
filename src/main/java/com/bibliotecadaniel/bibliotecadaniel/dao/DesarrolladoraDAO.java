@@ -15,4 +15,10 @@ public class DesarrolladoraDAO {
     public List<DesarrolladoraDTO> listarTodas() {
         return desarrolladoraRepository.listarTodas();
     }
+
+    public boolean existePorId(int idDesarrolladora) {
+
+        return desarrolladoraRepository.existePorId(idDesarrolladora);
+    }
+
 }
