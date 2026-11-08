@@ -16,4 +16,14 @@ public class VideojuegoService {
     public List<VideojuegoDTO> listarTodos() {
         return videojuegoDAO.listarTodos();
     }
+
+
+
+    public List<VideojuegoDTO> buscarPorTitulo(String titulo, Integer idDesarrolladora, Integer anioDesde, Integer pegiMaximo, boolean soloDisponibles) {
+
+        return videojuegoDAO.buscarPorTitulo(titulo, idDesarrolladora, anioDesde,pegiMaximo, soloDisponibles);
+    }
+
+
+
 }

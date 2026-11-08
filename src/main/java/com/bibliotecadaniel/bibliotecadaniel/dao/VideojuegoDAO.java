@@ -14,6 +14,15 @@ public class VideojuegoDAO {
         this.videojuegoRepository = videojuegoRepository;
     }
     public List<VideojuegoDTO> listarTodos(){
+
         return videojuegoRepository.listarTodos();
+    }
+
+
+
+    public List<VideojuegoDTO> buscarPorTitulo(String titulo, Integer idDesarrolladora, Integer anioDesde, Integer pegiMaximo,boolean soloDisponibles) {
+
+        return videojuegoRepository.buscarPorTitulo(titulo, idDesarrolladora, anioDesde, pegiMaximo, soloDisponibles);
+
     }
 }

@@ -69,10 +69,12 @@ public class VideojuegoDTO {
     }
 
     public int getCopiasTotales() {
+
         return copiasTotales;
     }
 
     public void setCopiasTotales(int copiasTotales) {
+
         this.copiasTotales = copiasTotales;
     }
 

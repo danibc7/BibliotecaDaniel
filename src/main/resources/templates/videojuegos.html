@@ -12,6 +12,58 @@
 <h1>Biblioteca de Videojuegos</h1>
 <h2>Listado de Videojuegos</h2>
 
+<form th:action="@{/videojuegos}" method="get">
+
+    <label for="titulo">Título:</label>
+    <input type="text" id="titulo" name="titulo" th:value="${titulo}">
+
+    <label for="desarrolladora">Desarrolladora:</label>
+
+
+    <select id="desarrolladora" name="idDesarrolladora">
+
+        <option value="">Todas las desarrolladoras</option>
+
+        <option th:each="desarrolladora : ${desarrolladoras}"
+                th:value="${desarrolladora.id}"
+                th:text="${desarrolladora.nombre}"
+                th:selected="${desarrolladora.id == idDesarrolladora}">
+
+        </option>
+
+    </select>
+
+    <label for="anioDesde">Año desde:</label>
+    <input type="number" id="anioDesde" name="anioDesde" min="1970" th:value="${anioDesde}">
+
+
+    <label for="pegiMaximo">PEGI máximo:</label>
+    <select id="pegiMaximo" name="pegiMaximo">
+
+        <option value="">Todos los PEGI</option>
+        <option value="3" th:selected="${pegiMaximo == 3}">PEGI 3</option>
+        <option value="7" th:selected="${pegiMaximo == 7}">PEGI 7</option>
+        <option value="12" th:selected="${pegiMaximo == 12}">PEGI 12</option>
+        <option value="16" th:selected="${pegiMaximo == 16}">PEGI 16</option>
+        <option value="18" th:selected="${pegiMaximo == 18}">PEGI 18</option>
+
+    </select>
+    <label for="soloDisponibles">
+        <input type="checkbox"
+               id="soloDisponibles"
+               name="soloDisponibles"
+               value="true"
+               th:checked="${soloDisponibles}">
+        Solo videojuegos con copias disponibles
+    </label>
+
+
+
+    <button type="submit">Buscar</button>
+
+</form>
+
+
 <table>
     <thead>
     <tr>
