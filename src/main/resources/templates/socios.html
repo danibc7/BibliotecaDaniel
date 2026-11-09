@@ -1,0 +1,85 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>BibliotecaDaniel - Socios</title>
+
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/tablas.css}">
+    <link rel="stylesheet" th:href="@{/css/formularios.css}">
+</head>
+
+<body>
+
+<h1>Biblioteca de Videojuegos</h1>
+<h2>Listado de Socios</h2>
+
+<div class="container">
+    <form class="form" th:action="@{/socios}" method="get">
+
+        <label for="nombreApellidos">Nombre o apellidos:</label>
+
+        <input type="text"
+               id="nombreApellidos"
+               name="nombreApellidos"
+               th:value="${nombreApellidos}">
+
+        <label for="email">Email:</label>
+
+        <input type="text"
+               id="email"
+               name="email"
+               th:value="${email}">
+
+
+        <label for="estado">Estado:</label>
+
+        <select id="estado" name="estado">
+            <option value="todos" th:selected="${estado == null or estado == 'todos'}">
+                Todos
+            </option>
+            <option value="activos" th:selected="${estado == 'activos'}">
+                Activos
+            </option>
+            <option value="inactivos" th:selected="${estado == 'inactivos'}">
+                Inactivos
+            </option>
+        </select>
+
+        <input type="submit" value="Buscar">
+
+    </form>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Apellidos</th>
+        <th>Email</th>
+        <th>Edad</th>
+        <th>Estado</th>
+        <th>Préstamos abiertos</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="socio : ${socios}">
+        <td th:text="${socio.id}"></td>
+        <td th:text="${socio.nombre}"></td>
+        <td th:text="${socio.apellidos}"></td>
+        <td th:text="${socio.email}"></td>
+        <td th:text="${socio.edad}"></td>
+
+        <td th:text="${socio.activo ? 'Activo' : 'Inactivo'}"></td>
+
+        <td th:text="${socio.prestamosAbiertos}"></td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
