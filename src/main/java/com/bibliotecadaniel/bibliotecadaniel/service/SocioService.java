@@ -1,7 +1,7 @@
 
 package com.bibliotecadaniel.bibliotecadaniel.service;
 
-import com.bibliotecadaniel.bibliotecadaniel.dao.SocioDAO;
+import com.bibliotecadaniel.bibliotecadaniel.dao.ISocioDAO;
 import com.bibliotecadaniel.bibliotecadaniel.dto.NuevoSocioDTO;
 import com.bibliotecadaniel.bibliotecadaniel.dto.SocioDTO;
 import org.springframework.stereotype.Service;
@@ -12,9 +12,9 @@ import java.util.List;
 @Service
 public class SocioService {
 
-    private final SocioDAO socioDAO;
+    private final ISocioDAO socioDAO;
 
-    public SocioService(SocioDAO socioDAO) {
+    public SocioService(ISocioDAO socioDAO) {
         this.socioDAO = socioDAO;
     }
 
@@ -57,5 +57,8 @@ public class SocioService {
         socioDAO.guardarSocio(socio);
     }
 
+    public List<SocioDTO> listarActivos() {
+        return socioDAO.listarActivos();
+    }
 
 }

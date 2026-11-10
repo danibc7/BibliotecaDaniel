@@ -1,6 +1,6 @@
 package com.bibliotecadaniel.bibliotecadaniel.service;
 
-import com.bibliotecadaniel.bibliotecadaniel.dao.VideojuegoDAO;
+import com.bibliotecadaniel.bibliotecadaniel.dao.IVideojuegoDAO;
 import com.bibliotecadaniel.bibliotecadaniel.dto.VideojuegoDTO;
 import org.springframework.stereotype.Service;
 
@@ -8,20 +8,19 @@ import java.util.List;
 
 @Service
 public class VideojuegoService {
-    private final VideojuegoDAO videojuegoDAO;
+    private final IVideojuegoDAO videojuegoDAO;
     private final DesarrolladoraService desarrolladoraService;
 
-    public VideojuegoService(VideojuegoDAO videojuegoDAO, DesarrolladoraService desarrolladoraService) {
-
+    public VideojuegoService(IVideojuegoDAO videojuegoDAO, DesarrolladoraService desarrolladoraService) {
         this.videojuegoDAO = videojuegoDAO;
         this.desarrolladoraService = desarrolladoraService;
     }
+
 
     public List<VideojuegoDTO> buscarPorTitulo(String titulo, Integer idDesarrolladora, Integer anioDesde, Integer pegiMaximo, boolean soloDisponibles) {
 
         return videojuegoDAO.buscarPorTitulo(titulo, idDesarrolladora, anioDesde,pegiMaximo, soloDisponibles);
     }
-
 
     public void guardarVideojuego(String titulo, int anioLanzamiento, int pegi, int idDesarrolladora) {
 
@@ -46,8 +45,6 @@ public class VideojuegoService {
         if (!desarrolladoraService.existePorId(idDesarrolladora)) {
             throw new IllegalArgumentException("La desarrolladora seleccionada no existe");
         }
-
-
 
         videojuegoDAO.guardarVideojuego(titulo.trim(), anioLanzamiento, pegi, idDesarrolladora);
     }

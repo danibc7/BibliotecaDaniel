@@ -7,24 +7,24 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class VideojuegoDAO {
+public class VideojuegoDAO implements IVideojuegoDAO {
     private final VideojuegoRepository videojuegoRepository;
 
     public VideojuegoDAO(VideojuegoRepository videojuegoRepository){
         this.videojuegoRepository = videojuegoRepository;
     }
+    @Override
     public List<VideojuegoDTO> listarTodos(){
 
         return videojuegoRepository.listarTodos();
     }
-
-
-
+    @Override
     public List<VideojuegoDTO> buscarPorTitulo(String titulo, Integer idDesarrolladora, Integer anioDesde, Integer pegiMaximo,boolean soloDisponibles) {
 
         return videojuegoRepository.buscarPorTitulo(titulo, idDesarrolladora, anioDesde, pegiMaximo, soloDisponibles);
 
     }
+    @Override
     public void guardarVideojuego(String titulo, int anioLanzamiento, int pegi, int idDesarrolladora){
         videojuegoRepository.guardarVideojuego(titulo,anioLanzamiento,pegi,idDesarrolladora);
     }

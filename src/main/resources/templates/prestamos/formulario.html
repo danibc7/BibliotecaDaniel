@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar préstamo - GameVault</title>
+
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/formularios.css}">
+</head>
+
+<body>
+
+<h1>GameVault</h1>
+
+<h2>Registrar préstamo</h2>
+
+<div th:if="${error}" class="error">
+    <p th:text="${error}"></p>
+</div>
+
+<form class="form" th:action="@{/prestamos/nuevo}" th:object="${prestamo}" method="post">
+
+    <div>
+        <label for="idSocio">Socio:</label>
+
+        <select id="idSocio" th:field="*{idSocio}" required>
+
+            <option value="">Selecciona un socio</option>
+
+            <option th:each="socio : ${socios}" th:value="${socio.id}" th:text="${socio.nombre + ' ' + socio.apellidos}">
+            </option>
+
+        </select>
+    </div>
+
+    <div>
+        <label for="idCopia">Videojuego disponible:</label>
+
+        <select id="idCopia" th:field="*{idCopia}" required>
+
+            <option value="">Selecciona un videojuego</option>
+
+            <option th:each="copia : ${copias}" th:value="${copia.id}" th:text="${copia.titulo + ' (' + copia.plataforma + ') - ' + copia.codigoInventario}">
+            </option>
+
+        </select>
+    </div>
+
+    <div>
+        <input type="submit" value="Registrar préstamo">
+    </div>
+
+</form>
+
+<div th:if="${resumen}" class="resumen">
+
+    <h3>Préstamo registrado</h3>
+
+    <p>
+        <strong th:text="${resumen.videojuego}"></strong>
+        (<span th:text="${resumen.plataforma}"></span>,
+        copia <span th:text="${resumen.codigoInventario}"></span>)
+    </p>
+
+    <p>
+        Socio:
+        <span th:text="${resumen.socio}"></span>
+    </p>
+
+    <p>
+        Préstamo:
+        <span th:text="${resumen.fechaPrestamo}"></span>
+        -
+        Fecha límite:
+        <span th:text="${resumen.fechaLimite}"></span>
+    </p>
+
+</div>
+
+<p>
+    <a th:href="@{/}">Volver al inicio</a>
+</p>
+
+</body>
+</html>

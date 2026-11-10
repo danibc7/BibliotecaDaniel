@@ -147,8 +147,58 @@ public class SocioRepository {
 
         return false;
     }
+    public List<SocioDTO> listarActivos() {
 
+        List<SocioDTO> socios = new ArrayList<>();
 
+        String sql = """
+            SELECT
+                s.id,
+                s.nombre,
+                s.apellidos,
+                s.email,
+                s.fecha_nacimiento,
+                s.fecha_alta,
+                s.activo,
+                TIMESTAMPDIFF(YEAR, s.fecha_nacimiento, CURDATE()) AS edad,
+                (
+                    SELECT COUNT(*)
+                    FROM prestamos p
+                    WHERE p.id_socio = s.id
+                    AND p.fecha_devolucion IS NULL
+                ) AS prestamos_abiertos
+            FROM socios s
+            WHERE s.activo = 1
+            ORDER BY s.apellidos, s.nombre
+            """;
+
+        try (Connection conexion = dataSource.getConnection();
+             PreparedStatement ps = conexion.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+
+                SocioDTO socio = new SocioDTO(
+                        rs.getInt("id"),
+                        rs.getString("nombre"),
+                        rs.getString("apellidos"),
+                        rs.getString("email"),
+                        rs.getDate("fecha_nacimiento").toLocalDate(),
+                        rs.getBoolean("activo"),
+                        rs.getInt("edad"),
+                        rs.getInt("prestamos_abiertos")
+                );
+
+                socios.add(socio);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(
+                    "Error al listar los socios activos", e);
+        }
+
+        return socios;
+    }
 
 }
 
