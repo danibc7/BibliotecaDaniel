@@ -1,6 +1,7 @@
 
 package com.bibliotecadaniel.bibliotecadaniel.repository;
 
+import com.bibliotecadaniel.bibliotecadaniel.dto.NuevoSocioDTO;
 import com.bibliotecadaniel.bibliotecadaniel.dto.SocioDTO;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
@@ -24,12 +25,7 @@ public class SocioRepository {
         return buscarPorNombreApellidos("","","todos");
     }
 
-
-
     public List<SocioDTO> buscarPorNombreApellidos(String nombreApellidos, String email, String estado) {
-
-
-
 
         List<SocioDTO> socios = new ArrayList<>();
 
@@ -105,6 +101,54 @@ public class SocioRepository {
 
         return socios;
     }
+
+    public void guardarSocio(NuevoSocioDTO socio) {
+
+        String sql = """
+            INSERT INTO socios
+            (nombre, apellidos, email, fecha_nacimiento, fecha_alta, activo)
+            VALUES (?, ?, ?, ?, CURDATE(), 1)
+            """;
+
+        try (Connection conexion = dataSource.getConnection();
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setString(1, socio.getNombre());
+            ps.setString(2, socio.getApellidos());
+            ps.setString(3, socio.getEmail());
+            ps.setDate(4, java.sql.Date.valueOf(socio.getFechaNacimiento()));
+
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al guardar el socio", e);
+        }
+    }
+
+    public boolean existeEmail(String email) {
+
+        String sql = "SELECT COUNT(*) FROM socios WHERE LOWER(email) = LOWER(?)";
+
+        try (Connection conexion = dataSource.getConnection();
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setString(1, email);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al comprobar el email", e);
+        }
+
+        return false;
+    }
+
+
 
 }
 

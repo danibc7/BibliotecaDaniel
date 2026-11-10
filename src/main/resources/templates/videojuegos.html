@@ -18,7 +18,6 @@
 
 <form class="form" th:action="@{/videojuegos}" method="get">
 
-
     <label for="titulo">Título:</label>
     <input type="text" id="titulo" name="titulo" th:value="${titulo}">
 
@@ -33,7 +32,6 @@
                 th:value="${desarrolladora.id}"
                 th:text="${desarrolladora.nombre}"
                 th:selected="${desarrolladora.id == idDesarrolladora}">
-
         </option>
 
     </select>

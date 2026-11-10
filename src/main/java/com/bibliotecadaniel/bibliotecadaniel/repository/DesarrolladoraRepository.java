@@ -33,18 +33,13 @@ public class DesarrolladoraRepository {
 
             while (rs.next()) {
 
-                DesarrolladoraDTO desarrolladora = new DesarrolladoraDTO(
-                        rs.getInt("id"),
-                        rs.getString("nombre")
-                );
+                DesarrolladoraDTO desarrolladora = new DesarrolladoraDTO(rs.getInt("id"), rs.getString("nombre"));
 
                 desarrolladoras.add(desarrolladora);
             }
 
         } catch (SQLException e) {
-            throw new IllegalStateException(
-                    "Error al consultar las desarrolladoras", e
-            );
+            throw new IllegalStateException("Error al consultar las desarrolladoras", e);
         }
 
         return desarrolladoras;
@@ -67,8 +62,7 @@ public class DesarrolladoraRepository {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(
-                    "Error al comprobar la desarrolladora", e);
+            throw new RuntimeException("Error al comprobar la desarrolladora", e);
         }
 
         return false;

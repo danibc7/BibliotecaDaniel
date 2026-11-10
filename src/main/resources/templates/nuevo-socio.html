@@ -1,0 +1,46 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nuevo socio - GameVault</title>
+
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/formularios.css}">
+</head>
+<body>
+
+<header>
+    <h1>Biblioteca de Videojuegos</h1>
+</header>
+
+<h2>Registrar nuevo socio</h2>
+
+<p class="error" th:if="${error != null}" th:text="${error}"></p>
+
+<div class="container">
+    <form class="form" th:action="@{/socios/nuevo}" method="post">
+
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" name="nombre" th:value="${socio != null ? socio.nombre : ''}" required>
+
+        <label for="apellidos">Apellidos:</label>
+        <input type="text" id="apellidos" name="apellidos" th:value="${socio != null ? socio.apellidos : ''}" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" th:value="${socio != null ? socio.email : ''}" required>
+
+        <label for="fechaNacimiento">Fecha de nacimiento:</label>
+        <input type="date" id="fechaNacimiento" name="fechaNacimiento" th:value="${socio != null ? socio.fechaNacimiento : ''}" required>
+
+        <input type="submit" value="Insertar">
+
+    </form>
+</div>
+
+<form th:action="@{/socios}" method="get">
+    <input type="submit" value="Volver al listado">
+</form>
+
+</body>
+</html>

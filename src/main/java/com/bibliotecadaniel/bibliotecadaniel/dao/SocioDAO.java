@@ -1,6 +1,7 @@
 
 package com.bibliotecadaniel.bibliotecadaniel.dao;
 
+import com.bibliotecadaniel.bibliotecadaniel.dto.NuevoSocioDTO;
 import com.bibliotecadaniel.bibliotecadaniel.dto.SocioDTO;
 import com.bibliotecadaniel.bibliotecadaniel.repository.SocioRepository;
 import org.springframework.stereotype.Repository;
@@ -25,6 +26,14 @@ public class SocioDAO {
         return socioRepository.buscarPorNombreApellidos(nombreApellidos, email, estado);
     }
 
+    public void guardarSocio(NuevoSocioDTO socio) {
 
+        socioRepository.guardarSocio(socio);
+    }
+
+    public boolean existeEmail(String email) {
+
+        return socioRepository.existeEmail(email);
+    }
 
 }

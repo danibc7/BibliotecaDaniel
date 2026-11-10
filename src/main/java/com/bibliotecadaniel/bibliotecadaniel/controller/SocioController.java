@@ -6,6 +6,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import com.bibliotecadaniel.bibliotecadaniel.dto.NuevoSocioDTO;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.format.annotation.DateTimeFormat;
+
 
 @Controller
 public class SocioController {
@@ -32,6 +37,31 @@ public class SocioController {
         return "socios";
     }
 
+    @GetMapping("/socios/nuevo")
+    public String mostrarFormularioNuevoSocio() {
+
+        return "nuevo-socio";
+    }
+
+
+    @PostMapping("/socios/nuevo")
+    public String registrarSocio(
+            @ModelAttribute NuevoSocioDTO socio, Model model) {
+
+        try {
+            socioService.guardarSocio(socio);
+
+            return "redirect:/socios";
+
+        } catch (IllegalArgumentException e) {
+
+            model.addAttribute("error", e.getMessage());
+
+            model.addAttribute("socio", socio);
+
+            return "nuevo-socio";
+        }
+    }
 
 
 }
