@@ -4,6 +4,7 @@ package com.bibliotecadaniel.bibliotecadaniel.repository;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,6 +17,9 @@ import com.bibliotecadaniel.bibliotecadaniel.dto.PrestamoListadoDTO;
 import java.util.List;
 import java.util.ArrayList;
 import java.time.temporal.ChronoUnit;
+import com.bibliotecadaniel.bibliotecadaniel.dto.PrestamoAbiertoDTO;
+import com.bibliotecadaniel.bibliotecadaniel.dto.ResumenDevolucionDTO;
+
 
 
 @Repository
@@ -554,6 +558,215 @@ public class PrestamoRepository {
         }
 
         return prestamos;
+    }
+
+    public List<PrestamoAbiertoDTO> listarPrestamosAbiertos(String socio) {
+
+        List<PrestamoAbiertoDTO> prestamos = new ArrayList<>();
+
+        StringBuilder sql = new StringBuilder("""
+            SELECT
+                pr.id,
+                CONCAT(s.nombre, ' ', s.apellidos) AS socio,
+                v.titulo AS videojuego,
+                pl.nombre AS plataforma,
+                c.codigo_inventario,
+                pr.fecha_limite
+            FROM prestamos pr
+            JOIN socios s ON pr.id_socio = s.id
+            JOIN copias c ON pr.id_copia = c.id
+            JOIN videojuegos v ON c.id_videojuego = v.id
+            JOIN plataformas pl ON c.id_plataforma = pl.id
+            WHERE pr.fecha_devolucion IS NULL
+            """);
+
+        boolean filtrarSocio = socio != null && !socio.isBlank();
+
+        if (filtrarSocio) {
+            sql.append("""
+                 AND CONCAT(s.nombre, ' ', s.apellidos) LIKE ?
+                """);
+        }
+
+        sql.append(" ORDER BY pr.fecha_limite ASC, pr.id ASC");
+
+        try (Connection conexion = dataSource.getConnection();
+             PreparedStatement ps = conexion.prepareStatement(sql.toString())) {
+
+            if (filtrarSocio) {
+                ps.setString(1, "%" + socio.trim() + "%");
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                LocalDate hoy = LocalDate.now();
+
+                while (rs.next()) {
+
+                    LocalDate fechaLimite = rs.getDate("fecha_limite").toLocalDate();
+
+                    String estado;
+
+                    if (fechaLimite.isBefore(hoy)) {
+                        estado = "VENCIDO";
+                    } else {
+                        estado = "EN_PLAZO";
+                    }
+
+                    prestamos.add(new PrestamoAbiertoDTO(
+                            rs.getInt("id"),
+                            rs.getString("socio"),
+                            rs.getString("videojuego"),
+                            rs.getString("plataforma"),
+                            rs.getString("codigo_inventario"),
+                            fechaLimite, estado));
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al obtener los préstamos abiertos", e);
+        }
+
+        return prestamos;
+    }
+
+    public BigDecimal devolverPrestamo(int idPrestamo, boolean copiaDanada) {
+
+        String sqlBuscar = """
+            SELECT id_copia, fecha_limite
+            FROM prestamos
+            WHERE id = ? AND fecha_devolucion IS NULL
+            FOR UPDATE
+            """;
+
+        String sqlDevolver = """
+            UPDATE prestamos
+            SET fecha_devolucion = ?, multa = ?
+            WHERE id = ? AND fecha_devolucion IS NULL
+            """;
+
+        String sqlDanada = """
+            UPDATE copias
+            SET estado = 'DAÑADO', activa = 0
+            WHERE id = ?
+            """;
+
+        try (Connection conexion = dataSource.getConnection()) {
+
+            conexion.setAutoCommit(false);
+
+            try {
+                int idCopia;
+                LocalDate fechaLimite;
+                try (PreparedStatement ps = conexion.prepareStatement(sqlBuscar)) {
+
+                    ps.setInt(1, idPrestamo);
+
+                    try (ResultSet rs = ps.executeQuery()) {
+
+                        if (!rs.next()) {
+                            throw new IllegalStateException("El préstamo no existe o ya fue devuelto.");
+                        }
+
+                        idCopia = rs.getInt("id_copia");
+                        fechaLimite = rs.getDate("fecha_limite").toLocalDate();
+                    }
+                }
+                LocalDate hoy = LocalDate.now();
+
+                long diasRetraso = Math.max(0, ChronoUnit.DAYS.between(fechaLimite, hoy));
+
+                BigDecimal multa = new BigDecimal("0.50").multiply(BigDecimal.valueOf(diasRetraso));
+
+
+                try (PreparedStatement ps = conexion.prepareStatement(sqlDevolver)) {
+
+                    ps.setDate(1, java.sql.Date.valueOf(hoy));
+                    ps.setBigDecimal(2, multa);
+                    ps.setInt(3, idPrestamo);
+
+                    if (ps.executeUpdate() != 1) {
+                        throw new IllegalStateException("No se pudo registrar la devolución.");
+                    }
+                }
+                if (copiaDanada) {
+
+                    try (PreparedStatement ps = conexion.prepareStatement(sqlDanada)) {
+
+                        ps.setInt(1, idCopia);
+
+                        if (ps.executeUpdate() != 1) {throw new IllegalStateException("No se pudo actualizar la copia dañada.");
+                        }
+                    }
+                }
+                conexion.commit();
+
+                return multa;
+
+            } catch (Exception e) {
+
+                conexion.rollback();
+                throw e;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al registrar la devolución.", e);
+        }
+    }
+
+    public ResumenDevolucionDTO obtenerResumenDevolucion(int idPrestamo) {
+
+        String sql = """
+            SELECT
+                v.titulo AS videojuego,
+                pl.nombre AS plataforma,
+                c.codigo_inventario,
+                CONCAT(s.nombre, ' ', s.apellidos) AS socio,
+                pr.fecha_prestamo,
+                pr.fecha_limite,
+                pr.fecha_devolucion,
+                pr.multa
+            FROM prestamos pr
+            JOIN socios s ON pr.id_socio = s.id
+            JOIN copias c ON pr.id_copia = c.id
+            JOIN videojuegos v ON c.id_videojuego = v.id
+            JOIN plataformas pl ON c.id_plataforma = pl.id
+            WHERE pr.id = ?
+              AND pr.fecha_devolucion IS NOT NULL
+            """;
+
+        try (Connection conexion = dataSource.getConnection();
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idPrestamo);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (!rs.next()) {
+                    throw new IllegalStateException("No se encontró la devolución.");
+                }
+
+                LocalDate fechaPrestamo = rs.getDate("fecha_prestamo").toLocalDate();
+
+                LocalDate fechaLimite = rs.getDate("fecha_limite").toLocalDate();
+
+                LocalDate fechaDevolucion = rs.getDate("fecha_devolucion").toLocalDate();
+
+                long diasRetraso = Math.max(0, ChronoUnit.DAYS.between(fechaLimite, fechaDevolucion));
+
+                return new ResumenDevolucionDTO(
+                        rs.getString("videojuego"),
+                        rs.getString("plataforma"),
+                        rs.getString("codigo_inventario"),
+                        rs.getString("socio"),
+                        fechaPrestamo, fechaLimite, fechaDevolucion, diasRetraso,
+                        rs.getBigDecimal("multa")
+                );
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al obtener el resumen de devolución.", e);
+        }
     }
 
 }

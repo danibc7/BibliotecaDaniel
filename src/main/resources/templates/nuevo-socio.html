@@ -9,12 +9,10 @@
     <link rel="stylesheet" th:href="@{/css/formularios.css}">
 </head>
 <body>
-
+<div th:replace="~{fragments/menu :: menu}"></div>
 <header>
-    <h1>Biblioteca de Videojuegos</h1>
+    <div th:replace="~{fragments/cabecera :: cabecera('Insertar socio')}"></div>
 </header>
-
-<h2>Registrar nuevo socio</h2>
 
 <p class="error" th:if="${error != null}" th:text="${error}"></p>
 

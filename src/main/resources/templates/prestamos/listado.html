@@ -13,61 +13,59 @@
 
 <body>
 
-<h1>GameVault</h1>
+<div th:replace="~{fragments/menu :: menu}"></div>
 
-<h2>Listado de préstamos</h2>
+<div th:replace="~{fragments/cabecera :: cabecera('Listado de préstamos')}"></div>
 
 <div class="container">
 
     <form class="form" th:action="@{/prestamos}" method="get">
 
         <label for="socio">Socio</label>
-        <input type="text"
-               id="socio"
-               name="socio"
-               th:value="${socio}">
+        <input type="text" id="socio" name="socio" th:value="${socio}">
 
         <label for="videojuego">Videojuego</label>
-        <input type="text"
-               id="videojuego"
-               name="videojuego"
-               th:value="${videojuego}">
+        <input type="text" id="videojuego" name="videojuego" th:value="${videojuego}">
 
         <label for="estado">Estado</label>
         <select id="estado" name="estado">
 
-            <option value="TODOS"
-                    th:selected="${estado == null or estado == 'TODOS'}">
+            <option value="TODOS" th:selected="${estado == null or estado == 'TODOS'}">
                 Todos
             </option>
 
-            <option value="EN_PLAZO"
-                    th:selected="${estado == 'EN_PLAZO'}">
+            <option value="EN_PLAZO" th:selected="${estado == 'EN_PLAZO'}">
                 En plazo
             </option>
 
-            <option value="VENCIDO"
-                    th:selected="${estado == 'VENCIDO'}">
+            <option value="VENCIDO" th:selected="${estado == 'VENCIDO'}">
                 Vencidos
             </option>
 
-            <option value="DEVUELTO"
-                    th:selected="${estado == 'DEVUELTO'}">
+            <option value="DEVUELTO" th:selected="${estado == 'DEVUELTO'}">
                 Devueltos
             </option>
 
         </select>
 
         <label for="fechaDesde">Desde</label>
-        <input type="date"
-               id="fechaDesde"
-               name="fechaDesde"
-               th:value="${fechaDesde}">
+        <input type="date" id="fechaDesde" name="fechaDesde" th:value="${fechaDesde}">
 
         <input type="submit" value="Buscar">
 
     </form>
 
+</div>
+<div>
+    <form th:action="@{/prestamos/nuevo}" method="get"
+          style="display: inline-block;">
+        <input type="submit" value="Registrar préstamo">
+    </form>
+
+    <form th:action="@{/prestamos/devolver}" method="get"
+          style="display: inline-block;">
+        <input type="submit" value="Devolver préstamo">
+    </form>
 </div>
 
 <table>
@@ -109,9 +107,7 @@
         <td th:text="${prestamo.multa} + ' €'"></td>
 
         <td>
-            <span class="estado"
-                  th:classappend="'estado-' + ${prestamo.estado}"
-                  th:text="${prestamo.estado == 'EN_PLAZO'
+            <span class="estado" th:classappend="'estado-' + ${prestamo.estado}" th:text="${prestamo.estado == 'EN_PLAZO'
                           ? 'EN PLAZO' : prestamo.estado}">
             </span>
         </td>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Inicio - GameVault</title>
+
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+</head>
+
+<body>
+
+<div th:replace="~{fragments/menu :: menu}"></div>
+
+<main>
+
+    <div th:replace="~{fragments/cabecera :: cabecera('GameVault · Biblioteca de videojuegos')}"></div>
+
+    <div class="contadores">
+
+        <div class="contador">
+            <span th:text="${estadisticas.totalVideojuegos}">0</span>
+            Videojuegos
+        </div>
+
+        <div class="contador">
+            <span th:text="${estadisticas.sociosActivos}">0</span>
+            Socios activos
+        </div>
+
+        <div class="contador">
+            <span th:text="${estadisticas.prestamosAbiertos}">0</span>
+            Préstamos abiertos
+        </div>
+
+        <div class="contador vencidos">
+            <span th:text="${estadisticas.prestamosVencidos}">0</span>
+            Préstamos vencidos
+        </div>
+
+    </div>
+
+</main>
+
+</body>
+</html>

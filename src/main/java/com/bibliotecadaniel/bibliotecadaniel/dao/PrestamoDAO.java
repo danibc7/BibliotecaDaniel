@@ -6,6 +6,10 @@ import com.bibliotecadaniel.bibliotecadaniel.dto.ResumenPrestamoDTO;
 import com.bibliotecadaniel.bibliotecadaniel.dto.PrestamoListadoDTO;
 import java.util.List;
 import java.time.LocalDate;
+import com.bibliotecadaniel.bibliotecadaniel.dto.PrestamoAbiertoDTO;
+import java.math.BigDecimal;
+import com.bibliotecadaniel.bibliotecadaniel.dto.ResumenDevolucionDTO;
+
 
 @Repository
 public class PrestamoDAO implements IPrestamoDAO {
@@ -62,6 +66,24 @@ public class PrestamoDAO implements IPrestamoDAO {
     public List<PrestamoListadoDTO> listarPrestamos(String socio, String videojuego, String estado, LocalDate fechaDesde) {
 
         return prestamoRepository.listarPrestamos(socio, videojuego, estado, fechaDesde);
+    }
+
+    @Override
+    public List<PrestamoAbiertoDTO> listarPrestamosAbiertos(String socio) {
+
+        return prestamoRepository.listarPrestamosAbiertos(socio);
+    }
+
+    @Override
+    public BigDecimal devolverPrestamo(int idPrestamo, boolean copiaDanada) {
+
+        return prestamoRepository.devolverPrestamo(idPrestamo, copiaDanada);
+    }
+
+    @Override
+    public ResumenDevolucionDTO obtenerResumenDevolucion(int idPrestamo) {
+
+        return prestamoRepository.obtenerResumenDevolucion(idPrestamo);
     }
 
 }

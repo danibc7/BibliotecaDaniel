@@ -9,8 +9,8 @@
     <link rel="stylesheet" th:href="@{/css/formularios.css}">
 </head>
 <body>
-<h1>Biblioteca de Videojuegos</h1>
-<h2>Listado de Videojuegos</h2>
+<div th:replace="~{fragments/menu :: menu}"></div>
+<div th:replace="~{fragments/cabecera :: cabecera('Listado de videojuegos')}"></div>
 
 <a th:href="@{/videojuegos/nuevo}">Añadir nuevo videojuego</a>
 
@@ -60,9 +60,7 @@
         Solo videojuegos con copias disponibles
     </label>
 
-
-
-    <button type="submit">Buscar</button>
+    <input type="submit" value="Buscar">
 
 </form>
 

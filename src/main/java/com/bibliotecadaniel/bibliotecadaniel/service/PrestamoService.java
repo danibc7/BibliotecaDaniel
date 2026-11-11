@@ -4,11 +4,17 @@ package com.bibliotecadaniel.bibliotecadaniel.service;
 import com.bibliotecadaniel.bibliotecadaniel.dao.IPrestamoDAO;
 import com.bibliotecadaniel.bibliotecadaniel.dto.NuevoPrestamoDTO;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
 import com.bibliotecadaniel.bibliotecadaniel.dto.ResumenPrestamoDTO;
 import com.bibliotecadaniel.bibliotecadaniel.dto.PrestamoListadoDTO;
 import java.util.List;
+import com.bibliotecadaniel.bibliotecadaniel.dto.PrestamoAbiertoDTO;
+import com.bibliotecadaniel.bibliotecadaniel.dto.ResumenDevolucionDTO;
+
+
 
 @Service
 public class PrestamoService {
@@ -78,6 +84,28 @@ public class PrestamoService {
     public List<PrestamoListadoDTO> listarPrestamos(String socio, String videojuego, String estado, LocalDate fechaDesde) {
 
         return prestamoDAO.listarPrestamos(socio, videojuego, estado, fechaDesde);
+    }
+
+    public List<PrestamoAbiertoDTO> listarPrestamosAbiertos(String socio) {
+
+        return prestamoDAO.listarPrestamosAbiertos(socio);
+    }
+
+    public BigDecimal devolverPrestamo(int idPrestamo, boolean copiaDanada) {
+
+        if (idPrestamo <= 0) {
+            throw new IllegalArgumentException("El identificador del préstamo no es válido.");
+        }
+        return prestamoDAO.devolverPrestamo(idPrestamo, copiaDanada);
+    }
+
+    public ResumenDevolucionDTO obtenerResumenDevolucion(int idPrestamo) {
+
+        if (idPrestamo <= 0) {
+            throw new IllegalArgumentException("El identificador del préstamo no es válido.");
+        }
+
+        return prestamoDAO.obtenerResumenDevolucion(idPrestamo);
     }
 
 }

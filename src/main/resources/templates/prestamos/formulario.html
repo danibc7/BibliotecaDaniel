@@ -11,10 +11,9 @@
 </head>
 
 <body>
+<div th:replace="~{fragments/menu :: menu}"></div>
+<div th:replace="~{fragments/cabecera :: cabecera('Registrar préstamo')}"></div>
 
-<h1>GameVault</h1>
-
-<h2>Registrar préstamo</h2>
 
 <div th:if="${error}" class="error">
     <p th:text="${error}"></p>

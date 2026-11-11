@@ -13,6 +13,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import com.bibliotecadaniel.bibliotecadaniel.dto.ResumenPrestamoDTO;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.bibliotecadaniel.bibliotecadaniel.dto.ResumenDevolucionDTO;
+
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Controller
@@ -85,6 +90,39 @@ public class PrestamoController {
         model.addAttribute("fechaDesde", fechaDesde);
 
         return "prestamos/listado";
+    }
+
+    @GetMapping("/prestamos/devolver")
+    public String mostrarPrestamosParaDevolver(@RequestParam(required = false) String socio, Model model) {
+
+        model.addAttribute("prestamos", prestamoService.listarPrestamosAbiertos(socio));
+
+        model.addAttribute("socio", socio);
+
+        return "prestamos/devolver";
+    }
+
+    @PostMapping("/prestamos/devolver")
+    public String procesarDevolucion(
+            @RequestParam int idPrestamo,
+            @RequestParam(defaultValue = "false") boolean copiaDanada,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            prestamoService.devolverPrestamo(idPrestamo, copiaDanada);
+
+            ResumenDevolucionDTO resumen = prestamoService.obtenerResumenDevolucion(idPrestamo);
+
+            redirectAttributes.addFlashAttribute("resumenDevolucion", resumen);
+
+            redirectAttributes.addFlashAttribute("copiaDanada", copiaDanada);
+
+        } catch (IllegalArgumentException | IllegalStateException e) {
+
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+
+        return "redirect:/prestamos/devolver";
     }
 
 }

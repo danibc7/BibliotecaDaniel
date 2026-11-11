@@ -12,9 +12,8 @@
 </head>
 
 <body>
-
-<h1>Biblioteca de Videojuegos</h1>
-<h2>Listado de Socios</h2>
+<div th:replace="~{fragments/menu :: menu}"></div>
+<div th:replace="~{fragments/cabecera :: cabecera('Listado de Socios')}"></div>
 
 <form th:action="@{/socios/nuevo}" method="get">
     <input type="submit" value="Nuevo socio">

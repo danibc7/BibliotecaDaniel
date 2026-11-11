@@ -5,6 +5,10 @@ import java.util.List;
 
 import com.bibliotecadaniel.bibliotecadaniel.dto.PrestamoListadoDTO;
 import com.bibliotecadaniel.bibliotecadaniel.dto.ResumenPrestamoDTO;
+import com.bibliotecadaniel.bibliotecadaniel.dto.PrestamoAbiertoDTO;
+import java.math.BigDecimal;
+import com.bibliotecadaniel.bibliotecadaniel.dto.ResumenDevolucionDTO;
+
 
 public interface IPrestamoDAO {
 
@@ -25,6 +29,12 @@ public interface IPrestamoDAO {
     ResumenPrestamoDTO obtenerResumenPrestamo(int idSocio, int idCopia, LocalDate fechaPrestamo, LocalDate fechaLimite);
 
     List<PrestamoListadoDTO> listarPrestamos(String socio, String videojuego, String estado, LocalDate fechaDesde);
+
+    List<PrestamoAbiertoDTO> listarPrestamosAbiertos(String socio);
+
+    BigDecimal devolverPrestamo(int idPrestamo, boolean copiaDanada);
+
+    ResumenDevolucionDTO obtenerResumenDevolucion(int idPrestamo);
 
 }
 
