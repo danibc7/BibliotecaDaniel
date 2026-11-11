@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.Period;
 import com.bibliotecadaniel.bibliotecadaniel.dto.ResumenPrestamoDTO;
+import com.bibliotecadaniel.bibliotecadaniel.dto.PrestamoListadoDTO;
+import java.util.List;
 
 @Service
 public class PrestamoService {
@@ -72,4 +74,10 @@ public class PrestamoService {
 
         return prestamoDAO.obtenerResumenPrestamo(idSocio,idCopia,fechaPrestamo,fechaLimite);
     }
+
+    public List<PrestamoListadoDTO> listarPrestamos(String socio, String videojuego, String estado, LocalDate fechaDesde) {
+
+        return prestamoDAO.listarPrestamos(socio, videojuego, estado, fechaDesde);
+    }
+
 }

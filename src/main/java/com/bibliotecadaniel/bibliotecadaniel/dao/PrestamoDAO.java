@@ -1,12 +1,10 @@
 
 package com.bibliotecadaniel.bibliotecadaniel.dao;
-
 import com.bibliotecadaniel.bibliotecadaniel.repository.PrestamoRepository;
 import org.springframework.stereotype.Repository;
-
 import com.bibliotecadaniel.bibliotecadaniel.dto.ResumenPrestamoDTO;
-
-
+import com.bibliotecadaniel.bibliotecadaniel.dto.PrestamoListadoDTO;
+import java.util.List;
 import java.time.LocalDate;
 
 @Repository
@@ -58,6 +56,12 @@ public class PrestamoDAO implements IPrestamoDAO {
     @Override
     public ResumenPrestamoDTO obtenerResumenPrestamo(int idSocio, int idCopia, LocalDate fechaPrestamo, LocalDate fechaLimite) {
         return prestamoRepository.obtenerResumenPrestamo(idSocio, idCopia, fechaPrestamo, fechaLimite);
+    }
+
+    @Override
+    public List<PrestamoListadoDTO> listarPrestamos(String socio, String videojuego, String estado, LocalDate fechaDesde) {
+
+        return prestamoRepository.listarPrestamos(socio, videojuego, estado, fechaDesde);
     }
 
 }

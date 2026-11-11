@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Listado de préstamos - GameVault</title>
+
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/formularios.css}">
+    <link rel="stylesheet" th:href="@{/css/tablas.css}">
+</head>
+
+<body>
+
+<h1>GameVault</h1>
+
+<h2>Listado de préstamos</h2>
+
+<div class="container">
+
+    <form class="form" th:action="@{/prestamos}" method="get">
+
+        <label for="socio">Socio</label>
+        <input type="text"
+               id="socio"
+               name="socio"
+               th:value="${socio}">
+
+        <label for="videojuego">Videojuego</label>
+        <input type="text"
+               id="videojuego"
+               name="videojuego"
+               th:value="${videojuego}">
+
+        <label for="estado">Estado</label>
+        <select id="estado" name="estado">
+
+            <option value="TODOS"
+                    th:selected="${estado == null or estado == 'TODOS'}">
+                Todos
+            </option>
+
+            <option value="EN_PLAZO"
+                    th:selected="${estado == 'EN_PLAZO'}">
+                En plazo
+            </option>
+
+            <option value="VENCIDO"
+                    th:selected="${estado == 'VENCIDO'}">
+                Vencidos
+            </option>
+
+            <option value="DEVUELTO"
+                    th:selected="${estado == 'DEVUELTO'}">
+                Devueltos
+            </option>
+
+        </select>
+
+        <label for="fechaDesde">Desde</label>
+        <input type="date"
+               id="fechaDesde"
+               name="fechaDesde"
+               th:value="${fechaDesde}">
+
+        <input type="submit" value="Buscar">
+
+    </form>
+
+</div>
+
+<table>
+
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Socio</th>
+        <th>Videojuego</th>
+        <th>Plataforma</th>
+        <th>Préstamo</th>
+        <th>Límite</th>
+        <th>Devolución</th>
+        <th>Multa</th>
+        <th>Estado</th>
+        <th>Retraso (días)</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+    <tr th:each="prestamo : ${prestamos}">
+
+        <td th:text="${prestamo.id}"></td>
+
+        <td th:text="${prestamo.socio}"></td>
+
+        <td th:text="${prestamo.videojuego}"></td>
+
+        <td th:text="${prestamo.plataforma}"></td>
+
+        <td th:text="${prestamo.fechaPrestamo}"></td>
+
+        <td th:text="${prestamo.fechaLimite}"></td>
+
+        <td th:text="${prestamo.fechaDevolucion != null
+                ? prestamo.fechaDevolucion : '-'}"></td>
+
+        <td th:text="${prestamo.multa} + ' €'"></td>
+
+        <td>
+            <span class="estado"
+                  th:classappend="'estado-' + ${prestamo.estado}"
+                  th:text="${prestamo.estado == 'EN_PLAZO'
+                          ? 'EN PLAZO' : prestamo.estado}">
+            </span>
+        </td>
+
+        <td th:text="${prestamo.diasRetraso}"></td>
+
+    </tr>
+
+    </tbody>
+
+</table>
+
+<p th:if="${#lists.isEmpty(prestamos)}">
+    No se encontraron préstamos con los filtros seleccionados.
+</p>
+
+<p>
+    <a th:href="@{/}">Volver al inicio</a>
+</p>
+
+</body>
+</html>

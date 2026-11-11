@@ -12,6 +12,11 @@ import java.time.LocalDate;
 import java.sql.Date;
 import java.time.Period;
 import com.bibliotecadaniel.bibliotecadaniel.dto.ResumenPrestamoDTO;
+import com.bibliotecadaniel.bibliotecadaniel.dto.PrestamoListadoDTO;
+import java.util.List;
+import java.util.ArrayList;
+import java.time.temporal.ChronoUnit;
+
 
 @Repository
 public class PrestamoRepository {
@@ -447,6 +452,108 @@ public class PrestamoRepository {
         }
 
         throw new IllegalArgumentException("No se encontraron los datos para el resumen");
+    }
+
+    public List<PrestamoListadoDTO> listarPrestamos(String socio, String videojuego, String estado, LocalDate fechaDesde) {
+
+        List<PrestamoListadoDTO> prestamos = new ArrayList<>();
+
+        StringBuilder sql = new StringBuilder("""
+            SELECT pr.id,
+                   CONCAT(s.nombre, ' ', s.apellidos) AS socio,
+                   v.titulo AS videojuego,
+                   pl.nombre AS plataforma,
+                   pr.fecha_prestamo,
+                   pr.fecha_limite,
+                   pr.fecha_devolucion,
+                   pr.multa
+            FROM prestamos pr
+            JOIN socios s ON pr.id_socio = s.id
+            JOIN copias c ON pr.id_copia = c.id
+            JOIN videojuegos v ON c.id_videojuego = v.id
+            JOIN plataformas pl ON c.id_plataforma = pl.id
+            WHERE 1 = 1
+            """);
+
+        List<Object> parametros = new ArrayList<>();
+
+        if (socio != null && !socio.isBlank()) {
+            sql.append(" AND CONCAT(s.nombre, ' ', s.apellidos) LIKE ?");
+            parametros.add("%" + socio.trim() + "%");
+        }
+
+        if (videojuego != null && !videojuego.isBlank()) {
+            sql.append(" AND v.titulo LIKE ?");
+            parametros.add("%" + videojuego.trim() + "%");
+        }
+
+        if (fechaDesde != null) {
+            sql.append(" AND pr.fecha_prestamo >= ?");
+            parametros.add(Date.valueOf(fechaDesde));
+        }
+
+        sql.append(" ORDER BY pr.fecha_prestamo DESC, pr.id DESC");
+
+        try (Connection conexion = dataSource.getConnection();
+             PreparedStatement ps = conexion.prepareStatement(sql.toString())) {
+
+            for (int indice = 0; indice < parametros.size(); indice++) {
+                ps.setObject(indice + 1, parametros.get(indice));
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                LocalDate hoy = LocalDate.now();
+
+                while (rs.next()) {
+
+                    LocalDate fechaPrestamo = rs.getDate("fecha_prestamo").toLocalDate();
+
+                    LocalDate fechaLimite = rs.getDate("fecha_limite").toLocalDate();
+
+                    Date fechaDevolucionSql = rs.getDate("fecha_devolucion");
+
+                    LocalDate fechaDevolucion = fechaDevolucionSql == null ? null : fechaDevolucionSql.toLocalDate();
+
+                    String estadoCalculado;
+                    long diasRetraso = 0;
+
+                    if (fechaDevolucion != null) {
+                        estadoCalculado = "DEVUELTO";
+                    } else if (fechaLimite.isBefore(hoy)) {
+                        estadoCalculado = "VENCIDO";
+                        diasRetraso = ChronoUnit.DAYS.between(
+                                fechaLimite, hoy);
+                    } else {
+                        estadoCalculado = "EN_PLAZO";
+                    }
+
+                    if (estado != null && !estado.isBlank()
+                            && !estado.equals("TODOS")
+                            && !estado.equals(estadoCalculado)) {
+                        continue;
+                    }
+
+                    prestamos.add(new PrestamoListadoDTO(
+                            rs.getInt("id"),
+                            rs.getString("socio"),
+                            rs.getString("videojuego"),
+                            rs.getString("plataforma"),
+                            fechaPrestamo,
+                            fechaLimite,
+                            fechaDevolucion,
+                            rs.getBigDecimal("multa"),
+                            estadoCalculado,
+                            diasRetraso
+                    ));
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al listar los préstamos", e);
+        }
+
+        return prestamos;
     }
 
 }

@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import com.bibliotecadaniel.bibliotecadaniel.dto.ResumenPrestamoDTO;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.format.annotation.DateTimeFormat;
+import java.time.LocalDate;
 
 @Controller
 public class PrestamoController {
@@ -62,6 +65,26 @@ public class PrestamoController {
         model.addAttribute("copias", copiaService.listarDisponibles());
 
         return "prestamos/formulario";
+    }
+
+    @GetMapping("/prestamos")
+    public String listarPrestamos(
+            @RequestParam(required = false) String socio,
+            @RequestParam(required = false) String videojuego,
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate fechaDesde,
+            Model model) {
+
+        model.addAttribute("prestamos", prestamoService.listarPrestamos(socio, videojuego, estado, fechaDesde));
+
+        model.addAttribute("socio", socio);
+        model.addAttribute("videojuego", videojuego);
+        model.addAttribute("estado", estado);
+        model.addAttribute("fechaDesde", fechaDesde);
+
+        return "prestamos/listado";
     }
 
 }
