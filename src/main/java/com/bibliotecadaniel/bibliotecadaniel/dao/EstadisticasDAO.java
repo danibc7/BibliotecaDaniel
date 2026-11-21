@@ -1,6 +1,8 @@
 package com.bibliotecadaniel.bibliotecadaniel.dao;
 
 import com.bibliotecadaniel.bibliotecadaniel.dto.EstadisticasDTO;
+import com.bibliotecadaniel.bibliotecadaniel.dto.VideojuegoMasPrestadoDTO;
+import java.util.List;
 import com.bibliotecadaniel.bibliotecadaniel.repository.EstadisticasRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,6 +15,11 @@ public class EstadisticasDAO implements IEstadisticasDAO {
             EstadisticasRepository estadisticasRepository) {
 
         this.estadisticasRepository = estadisticasRepository;
+    }
+
+    @Override
+    public List<VideojuegoMasPrestadoDTO> listarVideojuegosMasPrestados() {
+        return estadisticasRepository.listarVideojuegosMasPrestados();
     }
 
     @Override

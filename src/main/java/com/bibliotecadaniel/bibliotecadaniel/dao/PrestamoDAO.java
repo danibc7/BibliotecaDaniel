@@ -86,5 +86,9 @@ public class PrestamoDAO implements IPrestamoDAO {
         return prestamoRepository.obtenerResumenDevolucion(idPrestamo);
     }
 
+    @Override
+    public LocalDate renovarPrestamo(int idPrestamo) {
+        return prestamoRepository.renovarPrestamo(idPrestamo);
+    }
 }
 

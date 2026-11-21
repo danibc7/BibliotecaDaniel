@@ -62,7 +62,5 @@ public class SocioController {
             return "nuevo-socio";
         }
     }
-
-
 }
 

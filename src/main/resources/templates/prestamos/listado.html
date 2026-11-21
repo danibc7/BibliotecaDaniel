@@ -19,6 +19,9 @@
 
 <div class="container">
 
+    <div th:if="${mensaje}" class="ok"><p th:text="${mensaje}"></p></div>
+    <div th:if="${error}" class="error"><p th:text="${error}"></p></div>
+
     <form class="form" th:action="@{/prestamos}" method="get">
 
         <label for="socio">Socio</label>
@@ -82,6 +85,7 @@
         <th>Multa</th>
         <th>Estado</th>
         <th>Retraso (días)</th>
+        <th>Acción</th>
     </tr>
     </thead>
 
@@ -113,6 +117,14 @@
         </td>
 
         <td th:text="${prestamo.diasRetraso}"></td>
+
+        <td>
+            <form th:if="${prestamo.estado == 'EN_PLAZO' or prestamo.estado == 'VENCIDO'}"
+                  th:action="@{/prestamos/renovar}" method="post">
+                <input type="hidden" name="idPrestamo" th:value="${prestamo.id}">
+                <input type="submit" value="Renovar">
+            </form>
+        </td>
 
     </tr>
 

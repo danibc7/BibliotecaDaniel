@@ -25,7 +25,11 @@ public class VideojuegoDAO implements IVideojuegoDAO {
 
     }
     @Override
-    public void guardarVideojuego(String titulo, int anioLanzamiento, int pegi, int idDesarrolladora){
-        videojuegoRepository.guardarVideojuego(titulo,anioLanzamiento,pegi,idDesarrolladora);
+    public int guardarVideojuego(String titulo, int anioLanzamiento, int pegi, int idDesarrolladora) {
+        return videojuegoRepository.guardarVideojuego(titulo, anioLanzamiento, pegi, idDesarrolladora);
+    }
+    @Override
+    public VideojuegoDTO buscarPorId(int id) {
+        return videojuegoRepository.buscarPorId(id);
     }
 }

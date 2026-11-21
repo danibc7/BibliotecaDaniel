@@ -2,6 +2,9 @@
 package com.bibliotecadaniel.bibliotecadaniel.repository;
 
 import com.bibliotecadaniel.bibliotecadaniel.dto.EstadisticasDTO;
+import com.bibliotecadaniel.bibliotecadaniel.dto.VideojuegoMasPrestadoDTO;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -17,6 +20,37 @@ public class EstadisticasRepository {
 
     public EstadisticasRepository(DataSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+    public List<VideojuegoMasPrestadoDTO> listarVideojuegosMasPrestados() {
+        List<VideojuegoMasPrestadoDTO> videojuegos = new ArrayList<>();
+
+        String sql = """
+                SELECT v.titulo, COUNT(*) AS numero_prestamos
+                FROM prestamos p
+                JOIN copias c ON p.id_copia = c.id
+                JOIN videojuegos v ON c.id_videojuego = v.id
+                GROUP BY v.id, v.titulo
+                ORDER BY numero_prestamos DESC, v.titulo ASC
+                LIMIT 5
+                """;
+
+        try (Connection conexion = dataSource.getConnection();
+             PreparedStatement ps = conexion.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                videojuegos.add(new VideojuegoMasPrestadoDTO(
+                        rs.getString("titulo"),
+                        rs.getLong("numero_prestamos")
+                ));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al obtener los videojuegos más prestados.", e);
+        }
+
+        return videojuegos;
     }
 
     public EstadisticasDTO obtenerEstadisticas() {

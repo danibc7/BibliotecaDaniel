@@ -5,10 +5,7 @@ import com.bibliotecadaniel.bibliotecadaniel.dto.VideojuegoDTO;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -124,9 +121,7 @@ public class VideojuegoRepository {
             }
 
         } catch (SQLException e) {
-            throw new IllegalStateException(
-                    "Error al consultar los videojuegos", e
-            );
+            throw new IllegalStateException("Error al consultar los videojuegos", e);
         }
 
         return videojuegos;
@@ -136,7 +131,7 @@ public class VideojuegoRepository {
         return buscarPorTitulo("", null, null,null,false);
     }
 
-    public void guardarVideojuego(String titulo, int anioLanzamiento, int pegi, int idDesarrolladora) {
+    public int guardarVideojuego(String titulo, int anioLanzamiento, int pegi, int idDesarrolladora) {
 
         String sql = """
             INSERT INTO videojuegos
@@ -145,7 +140,7 @@ public class VideojuegoRepository {
             """;
 
         try (Connection conexion = dataSource.getConnection();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
+             PreparedStatement ps = conexion.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, titulo);
             ps.setInt(2, anioLanzamiento);
@@ -154,9 +149,93 @@ public class VideojuegoRepository {
 
             ps.executeUpdate();
 
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+
+            throw new IllegalStateException("No se ha obtenido el ID del videojuego");
+
         } catch (SQLException e) {
             throw new RuntimeException("Error al guardar el videojuego", e);
         }
     }
+    public VideojuegoDTO buscarPorId(int id) {
 
+        String sql = """
+            SELECT
+                v.id,
+                v.titulo,
+                v.anio_lanzamiento,
+                v.pegi,
+                v.id_desarrolladora,
+                d.nombre AS nombre_desarrolladora,
+                COUNT(c.id) AS copias_totales,
+                COUNT(
+                    CASE
+                        WHEN c.activa = 1
+                        AND NOT EXISTS (
+                            SELECT 1
+                            FROM prestamos p
+                            WHERE p.id_copia = c.id
+                            AND p.fecha_devolucion IS NULL
+                        )
+                        THEN 1
+                    END
+                ) AS copias_disponibles
+            FROM videojuegos v
+            INNER JOIN desarrolladoras d
+                ON v.id_desarrolladora = d.id
+            LEFT JOIN copias c
+                ON v.id = c.id_videojuego
+            WHERE v.id = ?
+            GROUP BY
+                v.id,
+                v.titulo,
+                v.anio_lanzamiento,
+                v.pegi,
+                v.id_desarrolladora,
+                d.nombre
+            """;
+
+        try (Connection conexion = dataSource.getConnection();
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next()) {
+
+                    VideojuegoDTO videojuego = new VideojuegoDTO(
+                            rs.getInt("id"),
+                            rs.getString("titulo"),
+                            rs.getInt("anio_lanzamiento"),
+                            rs.getInt("pegi"),
+                            rs.getInt("id_desarrolladora")
+                    );
+
+                    videojuego.setNombreDesarrolladora(
+                            rs.getString("nombre_desarrolladora")
+                    );
+
+                    videojuego.setCopiasTotales(
+                            rs.getInt("copias_totales")
+                    );
+
+                    videojuego.setCopiasDisponibles(
+                            rs.getInt("copias_disponibles")
+                    );
+
+                    return videojuego;
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new IllegalStateException("Error al buscar el videojuego", e);
+        }
+
+        return null;
+    }
 }

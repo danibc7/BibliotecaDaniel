@@ -108,4 +108,10 @@ public class PrestamoService {
         return prestamoDAO.obtenerResumenDevolucion(idPrestamo);
     }
 
+    public LocalDate renovarPrestamo(int idPrestamo) {
+        if (idPrestamo <= 0) {
+            throw new IllegalArgumentException("El identificador del préstamo no es válido.");
+        }
+        return prestamoDAO.renovarPrestamo(idPrestamo);
+    }
 }

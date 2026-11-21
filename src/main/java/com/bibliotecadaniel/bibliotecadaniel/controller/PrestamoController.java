@@ -125,4 +125,20 @@ public class PrestamoController {
         return "redirect:/prestamos/devolver";
     }
 
+    @GetMapping("/prestamos/renovar")
+    public String mostrarRenovaciones() {
+        return "redirect:/prestamos";
+    }
+
+    @PostMapping("/prestamos/renovar")
+    public String procesarRenovacion(@RequestParam int idPrestamo, RedirectAttributes redirectAttributes) {
+        try {
+            LocalDate nuevaFecha = prestamoService.renovarPrestamo(idPrestamo);
+            redirectAttributes.addFlashAttribute("mensaje",
+                    "Préstamo " + idPrestamo + " renovado. Nueva fecha límite: " + nuevaFecha);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/prestamos";
+    }
 }

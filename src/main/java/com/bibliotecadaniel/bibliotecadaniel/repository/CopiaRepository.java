@@ -61,8 +61,7 @@ public class CopiaRepository {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(
-                    "Error al listar las copias disponibles", e);
+            throw new RuntimeException("Error al listar las copias disponibles", e);
         }
 
         return copias;

@@ -11,5 +11,7 @@ public interface IVideojuegoDAO {
 
     List<VideojuegoDTO> buscarPorTitulo(String titulo, Integer idDesarrolladora, Integer anioDesde, Integer pegiMaximo, boolean soloDisponibles);
 
-    void guardarVideojuego(String titulo, int anioLanzamiento, int pegi, int idDesarrolladora);
+    int guardarVideojuego(String titulo, int anioLanzamiento, int pegi, int idDesarrolladora);
+
+    VideojuegoDTO buscarPorId(int id);
 }

@@ -16,7 +16,6 @@ public class VideojuegoService {
         this.desarrolladoraService = desarrolladoraService;
     }
 
-
     public List<VideojuegoDTO> buscarPorTitulo(String titulo, Integer idDesarrolladora, Integer anioDesde, Integer pegiMaximo, boolean soloDisponibles) {
 
         return videojuegoDAO.buscarPorTitulo(titulo, idDesarrolladora, anioDesde,pegiMaximo, soloDisponibles);
@@ -48,6 +47,45 @@ public class VideojuegoService {
 
         videojuegoDAO.guardarVideojuego(titulo.trim(), anioLanzamiento, pegi, idDesarrolladora);
     }
+    public VideojuegoDTO crearVideojuego(VideojuegoDTO videojuego) {
 
+        if (videojuego.getTitulo() == null || videojuego.getTitulo().trim().isEmpty()) {
+            throw new IllegalArgumentException("El título del videojuego es obligatorio");
+        }
+
+        int anioActual = java.time.Year.now().getValue();
+
+        if (videojuego.getAnioLanzamiento() < 1970 || videojuego.getAnioLanzamiento() > anioActual) {
+            throw new IllegalArgumentException("El año debe estar entre 1970 y " + anioActual);
+        }
+
+        int pegi = videojuego.getPegi();
+
+        if (pegi != 3 && pegi != 7 && pegi != 12 && pegi != 16 && pegi != 18) {
+            throw new IllegalArgumentException("La clasificación PEGI no es válida");
+        }
+
+        if (videojuego.getIdDesarrolladora() <= 0) {
+            throw new IllegalArgumentException("Debes seleccionar una desarrolladora válida");
+        }
+
+        if (!desarrolladoraService.existePorId(videojuego.getIdDesarrolladora())) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.NOT_FOUND,
+                    "La desarrolladora seleccionada no existe");
+        }
+
+        int id = videojuegoDAO.guardarVideojuego(
+                videojuego.getTitulo().trim(),
+                videojuego.getAnioLanzamiento(),
+                videojuego.getPegi(),
+                videojuego.getIdDesarrolladora()
+        );
+
+        return videojuegoDAO.buscarPorId(id);
+    }
+    public VideojuegoDTO buscarPorId(int id) {
+        return videojuegoDAO.buscarPorId(id);
+    }
 
 }

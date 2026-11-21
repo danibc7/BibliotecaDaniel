@@ -36,6 +36,7 @@ public class SocioRepository {
                 s.apellidos,
                 s.email,
                 s.fecha_nacimiento,
+                s.fecha_alta,
                 s.activo,
                 TIMESTAMPDIFF(YEAR, s.fecha_nacimiento, CURDATE()) AS edad,
                 COUNT(p.id) AS prestamos_abiertos
@@ -49,14 +50,15 @@ public class SocioRepository {
                         AND (? = 'todos'
                             OR (? = 'activos' AND s.activo = 1)
                             OR (? = 'inactivos' AND s.activo = 0))
-                        GROUP BY
-                s.id,
-                s.nombre,
-                s.apellidos,
-                s.email,
-                s.fecha_nacimiento,
-                s.activo
-            ORDER BY s.id
+                    GROUP BY
+                     s.id,
+                     s.nombre,
+                     s.apellidos,
+                     s.email,
+                     s.fecha_nacimiento,
+                     s.fecha_alta,
+                     s.activo
+                 ORDER BY s.id
             """;
 
         try (Connection conexion = dataSource.getConnection();
@@ -87,13 +89,14 @@ public class SocioRepository {
                         rs.getString("apellidos"),
                         rs.getString("email"),
                         rs.getDate("fecha_nacimiento").toLocalDate(),
+                        rs.getDate("fecha_alta").toLocalDate(),
                         rs.getBoolean("activo"),
                         rs.getInt("edad"),
                         rs.getInt("prestamos_abiertos")
                 );
 
                 socios.add(socio);
-            }
+              }
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error al listar los socios", e);
@@ -184,6 +187,7 @@ public class SocioRepository {
                         rs.getString("apellidos"),
                         rs.getString("email"),
                         rs.getDate("fecha_nacimiento").toLocalDate(),
+                        rs.getDate("fecha_alta").toLocalDate(),
                         rs.getBoolean("activo"),
                         rs.getInt("edad"),
                         rs.getInt("prestamos_abiertos")
@@ -193,8 +197,7 @@ public class SocioRepository {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(
-                    "Error al listar los socios activos", e);
+            throw new RuntimeException("Error al listar los socios activos", e);
         }
 
         return socios;

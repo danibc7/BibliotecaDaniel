@@ -20,9 +20,6 @@ public class VideojuegoController {
         this.desarrolladoraService = desarrolladoraService;
     }
 
-
-
-
     @GetMapping("/videojuegos")
     public String listarVideojuegos(
             @RequestParam(required = false) String titulo,
@@ -87,8 +84,5 @@ public class VideojuegoController {
         }
 
     }
-
-
-
 
 }

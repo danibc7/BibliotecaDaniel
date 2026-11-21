@@ -197,8 +197,7 @@ public class PrestamoRepository {
             ps.executeUpdate();
 
         } catch (SQLException e) {
-            throw new RuntimeException(
-                    "Error al guardar el préstamo", e);
+            throw new RuntimeException("Error al guardar el préstamo", e);
         }
     }
 
@@ -766,6 +765,56 @@ public class PrestamoRepository {
 
         } catch (SQLException e) {
             throw new RuntimeException("Error al obtener el resumen de devolución.", e);
+        }
+    }
+
+    public LocalDate renovarPrestamo(int idPrestamo) {
+        String buscar = """
+                SELECT fecha_limite, fecha_devolucion, renovaciones
+                FROM prestamos WHERE id = ? FOR UPDATE
+                """;
+        String actualizar = """
+                UPDATE prestamos SET fecha_limite = ?, renovaciones = renovaciones + 1
+                WHERE id = ? AND renovaciones = 0 AND fecha_devolucion IS NULL
+                """;
+        try (Connection conexion = dataSource.getConnection()) {
+            conexion.setAutoCommit(false);
+            try {
+                LocalDate fechaLimite;
+                try (PreparedStatement ps = conexion.prepareStatement(buscar)) {
+                    ps.setInt(1, idPrestamo);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (!rs.next()) {
+                            throw new IllegalArgumentException("No existe el préstamo indicado.");
+                        }
+                        if (rs.getDate("fecha_devolucion") != null) {
+                            throw new IllegalStateException("No se puede renovar un préstamo devuelto.");
+                        }
+                        fechaLimite = rs.getDate("fecha_limite").toLocalDate();
+                        if (fechaLimite.isBefore(LocalDate.now())) {
+                            throw new IllegalStateException("No se puede renovar un préstamo vencido.");
+                        }
+                        if (rs.getInt("renovaciones") >= 1) {
+                            throw new IllegalStateException("Este préstamo ya se ha renovado una vez.");
+                        }
+                    }
+                }
+                LocalDate nuevaFecha = fechaLimite.plusDays(7);
+                try (PreparedStatement ps = conexion.prepareStatement(actualizar)) {
+                    ps.setDate(1, java.sql.Date.valueOf(nuevaFecha));
+                    ps.setInt(2, idPrestamo);
+                    if (ps.executeUpdate() != 1) {
+                        throw new IllegalStateException("No se ha podido renovar el préstamo.");
+                    }
+                }
+                conexion.commit();
+                return nuevaFecha;
+            } catch (Exception e) {
+                conexion.rollback();
+                throw e;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error de base de datos al renovar el préstamo.", e);
         }
     }
 

@@ -1,5 +1,7 @@
 package com.bibliotecadaniel.bibliotecadaniel.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public class VideojuegoDTO {
 
     private int id;
@@ -10,6 +12,11 @@ public class VideojuegoDTO {
     private String nombreDesarrolladora;
     private int copiasTotales;
     private int copiasDisponibles;
+
+    @JsonCreator
+    public VideojuegoDTO() {
+
+    }
 
     public VideojuegoDTO(int id, String titulo, int anioLanzamiento, int pegi, int idDesarrolladora) {
         this.id = id;

@@ -36,5 +36,7 @@ public interface IPrestamoDAO {
 
     ResumenDevolucionDTO obtenerResumenDevolucion(int idPrestamo);
 
+    java.time.LocalDate renovarPrestamo(int idPrestamo);
+
 }
 
