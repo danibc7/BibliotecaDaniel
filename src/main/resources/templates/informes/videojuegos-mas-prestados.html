@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Videojuegos más prestados - GameVault</title>
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/tablas.css}">
+</head>
+<body>
+<div th:replace="~{fragments/menu :: menu}"></div>
+<div th:replace="~{fragments/cabecera :: cabecera('Videojuegos más prestados')}"></div>
+<main class="container">
+    <p th:if="${#lists.isEmpty(videojuegos)}">No hay préstamos registrados.</p>
+    <table th:unless="${#lists.isEmpty(videojuegos)}">
+        <thead>
+        <tr>
+            <th>Título</th>
+            <th>Número de préstamos</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="videojuego : ${videojuegos}">
+            <td th:text="${videojuego.titulo}"></td>
+            <td th:text="${videojuego.numeroPrestamos}"></td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>
