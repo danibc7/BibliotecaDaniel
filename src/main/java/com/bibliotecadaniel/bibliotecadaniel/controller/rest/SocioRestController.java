@@ -2,11 +2,11 @@ package com.bibliotecadaniel.bibliotecadaniel.controller.rest;
 
 import com.bibliotecadaniel.bibliotecadaniel.dto.SocioDTO;
 import com.bibliotecadaniel.bibliotecadaniel.service.SocioService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import com.bibliotecadaniel.bibliotecadaniel.dto.NuevoSocioDTO;
+import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @RestController
@@ -36,5 +36,34 @@ public class SocioRestController {
         }
 
         return socioService.buscarPorNombreApellidos(nombre, email, estado);
+    }
+
+    @GetMapping("/socios/{id}")
+    public ResponseEntity<SocioDTO> obtenerSocio(@PathVariable int id) {
+
+        SocioDTO socio = socioService.buscarPorId(id);
+
+        if (socio == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(socio, HttpStatus.OK);
+    }
+    @PostMapping("/socios")
+    public ResponseEntity<SocioDTO> crearSocio(@RequestBody NuevoSocioDTO socio) {
+
+        try {
+            SocioDTO socioCreado = socioService.crearSocio(socio);
+
+            return new ResponseEntity<>(socioCreado, HttpStatus.CREATED);
+
+        } catch (IllegalArgumentException e) {
+
+            if (e.getMessage().equals("Ya existe un socio registrado con ese correo electrónico")) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+            }
+
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
     }
 }

@@ -27,7 +27,7 @@ public class SocioService {
         return socioDAO.buscarPorNombreApellidos(nombreApellidos, email, estado);
     }
 
-    public void guardarSocio(NuevoSocioDTO socio) {
+    public int guardarSocio(NuevoSocioDTO socio) {
 
         if (socio.getNombre() == null || socio.getNombre().isBlank() || socio.getNombre().length() > 40) {
 
@@ -50,15 +50,22 @@ public class SocioService {
         }
 
         if (socioDAO.existeEmail(socio.getEmail())) {
-
-            throw new IllegalArgumentException("Ya existe un socio registrado con ese correo electrónico");
+            throw new IllegalArgumentException(
+                    "Ya existe un socio registrado con ese correo electrónico");
         }
-
-        socioDAO.guardarSocio(socio);
+        return socioDAO.guardarSocio(socio);
     }
+    public SocioDTO crearSocio(NuevoSocioDTO socio) {
 
+        int id = guardarSocio(socio);
+
+        return socioDAO.buscarPorId(id);
+    }
     public List<SocioDTO> listarActivos() {
         return socioDAO.listarActivos();
     }
 
+    public SocioDTO buscarPorId(int id) {
+        return socioDAO.buscarPorId(id);
+    }
 }

@@ -26,9 +26,8 @@ public class SocioDAO implements ISocioDAO {
         return socioRepository.buscarPorNombreApellidos(nombreApellidos, email, estado);
     }
     @Override
-    public void guardarSocio(NuevoSocioDTO socio) {
-
-        socioRepository.guardarSocio(socio);
+    public int guardarSocio(NuevoSocioDTO socio) {
+        return socioRepository.guardarSocio(socio);
     }
     @Override
     public boolean existeEmail(String email) {
@@ -41,5 +40,8 @@ public class SocioDAO implements ISocioDAO {
         return socioRepository.listarActivos();
     }
 
-
+    @Override
+    public SocioDTO buscarPorId(int id) {
+        return socioRepository.buscarPorId(id);
+    }
 }

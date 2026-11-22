@@ -12,10 +12,12 @@ public interface ISocioDAO {
 
     List<SocioDTO> buscarPorNombreApellidos(String nombreApellidos, String email, String estado);
 
-    void guardarSocio(NuevoSocioDTO socio);
+    int guardarSocio(NuevoSocioDTO socio);
 
     boolean existeEmail(String email);
 
     List<SocioDTO> listarActivos();
+
+    SocioDTO buscarPorId(int id);
 
 }

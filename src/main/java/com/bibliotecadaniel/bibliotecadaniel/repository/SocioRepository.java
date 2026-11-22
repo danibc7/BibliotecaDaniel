@@ -5,10 +5,7 @@ import com.bibliotecadaniel.bibliotecadaniel.dto.NuevoSocioDTO;
 import com.bibliotecadaniel.bibliotecadaniel.dto.SocioDTO;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,7 +102,7 @@ public class SocioRepository {
         return socios;
     }
 
-    public void guardarSocio(NuevoSocioDTO socio) {
+    public int guardarSocio(NuevoSocioDTO socio) {
 
         String sql = """
             INSERT INTO socios
@@ -114,7 +111,8 @@ public class SocioRepository {
             """;
 
         try (Connection conexion = dataSource.getConnection();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
+             PreparedStatement ps = conexion.prepareStatement(
+                     sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, socio.getNombre());
             ps.setString(2, socio.getApellidos());
@@ -122,6 +120,14 @@ public class SocioRepository {
             ps.setDate(4, java.sql.Date.valueOf(socio.getFechaNacimiento()));
 
             ps.executeUpdate();
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+
+            throw new IllegalStateException("No se ha obtenido el ID del socio");
 
         } catch (SQLException e) {
             throw new RuntimeException("Error al guardar el socio", e);
@@ -202,6 +208,56 @@ public class SocioRepository {
 
         return socios;
     }
+    public SocioDTO buscarPorId(int id) {
 
+        String sql = """
+            SELECT
+                s.id,
+                s.nombre,
+                s.apellidos,
+                s.email,
+                s.fecha_nacimiento,
+                s.fecha_alta,
+                s.activo,
+                TIMESTAMPDIFF(YEAR, s.fecha_nacimiento, CURDATE()) AS edad,
+                (
+                    SELECT COUNT(*)
+                    FROM prestamos p
+                    WHERE p.id_socio = s.id
+                    AND p.fecha_devolucion IS NULL
+                ) AS prestamos_abiertos
+            FROM socios s
+            WHERE s.id = ?
+            """;
+
+        try (Connection conexion = dataSource.getConnection();
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next()) {
+
+                    return new SocioDTO(
+                            rs.getInt("id"),
+                            rs.getString("nombre"),
+                            rs.getString("apellidos"),
+                            rs.getString("email"),
+                            rs.getDate("fecha_nacimiento").toLocalDate(),
+                            rs.getDate("fecha_alta").toLocalDate(),
+                            rs.getBoolean("activo"),
+                            rs.getInt("edad"),
+                            rs.getInt("prestamos_abiertos")
+                    );
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al buscar el socio", e);
+        }
+
+        return null;
+    }
 }
 
