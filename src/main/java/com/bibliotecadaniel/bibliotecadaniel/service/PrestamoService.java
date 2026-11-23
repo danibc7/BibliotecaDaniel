@@ -2,18 +2,15 @@
 package com.bibliotecadaniel.bibliotecadaniel.service;
 
 import com.bibliotecadaniel.bibliotecadaniel.dao.IPrestamoDAO;
-import com.bibliotecadaniel.bibliotecadaniel.dto.NuevoPrestamoDTO;
+import com.bibliotecadaniel.bibliotecadaniel.dto.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
-import com.bibliotecadaniel.bibliotecadaniel.dto.ResumenPrestamoDTO;
-import com.bibliotecadaniel.bibliotecadaniel.dto.PrestamoListadoDTO;
 import java.util.List;
-import com.bibliotecadaniel.bibliotecadaniel.dto.PrestamoAbiertoDTO;
-import com.bibliotecadaniel.bibliotecadaniel.dto.ResumenDevolucionDTO;
-
 
 
 @Service
@@ -113,5 +110,28 @@ public class PrestamoService {
             throw new IllegalArgumentException("El identificador del préstamo no es válido.");
         }
         return prestamoDAO.renovarPrestamo(idPrestamo);
+    }
+
+    public List<PrestamoRestDTO> listarPrestamosRest(String socio, String titulo, String estado, LocalDate fechaDesde) {
+
+        if (estado != null && !estado.equals("EN_PLAZO")
+                && !estado.equals("VENCIDO")
+                && !estado.equals("DEVUELTO")) {
+
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El estado debe ser EN_PLAZO, VENCIDO o DEVUELTO");
+        }
+
+        return prestamoDAO.listarPrestamosRest(socio, titulo, estado, fechaDesde);
+    }
+
+    public PrestamoRestDTO buscarPrestamoRestPorId(int id) {
+
+        PrestamoRestDTO prestamo = prestamoDAO.buscarPrestamoRestPorId(id);
+
+        if (prestamo == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El préstamo no existe");
+        }
+
+        return prestamo;
     }
 }

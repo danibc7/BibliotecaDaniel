@@ -8,6 +8,7 @@ import com.bibliotecadaniel.bibliotecadaniel.dto.ResumenPrestamoDTO;
 import com.bibliotecadaniel.bibliotecadaniel.dto.PrestamoAbiertoDTO;
 import java.math.BigDecimal;
 import com.bibliotecadaniel.bibliotecadaniel.dto.ResumenDevolucionDTO;
+import com.bibliotecadaniel.bibliotecadaniel.dto.PrestamoRestDTO;
 
 
 public interface IPrestamoDAO {
@@ -37,6 +38,10 @@ public interface IPrestamoDAO {
     ResumenDevolucionDTO obtenerResumenDevolucion(int idPrestamo);
 
     java.time.LocalDate renovarPrestamo(int idPrestamo);
+
+    List<PrestamoRestDTO> listarPrestamosRest(String socio, String titulo, String estado, LocalDate fechaDesde);
+
+    PrestamoRestDTO buscarPrestamoRestPorId(int id);
 
 }
 

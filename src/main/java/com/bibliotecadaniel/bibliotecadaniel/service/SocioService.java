@@ -2,9 +2,13 @@
 package com.bibliotecadaniel.bibliotecadaniel.service;
 
 import com.bibliotecadaniel.bibliotecadaniel.dao.ISocioDAO;
+import com.bibliotecadaniel.bibliotecadaniel.dto.ActualizarSocioDTO;
 import com.bibliotecadaniel.bibliotecadaniel.dto.NuevoSocioDTO;
 import com.bibliotecadaniel.bibliotecadaniel.dto.SocioDTO;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.time.LocalDate;
 
 import java.util.List;
@@ -50,8 +54,7 @@ public class SocioService {
         }
 
         if (socioDAO.existeEmail(socio.getEmail())) {
-            throw new IllegalArgumentException(
-                    "Ya existe un socio registrado con ese correo electrónico");
+            throw new IllegalArgumentException("Ya existe un socio registrado con ese correo electrónico");
         }
         return socioDAO.guardarSocio(socio);
     }
@@ -67,5 +70,63 @@ public class SocioService {
 
     public SocioDTO buscarPorId(int id) {
         return socioDAO.buscarPorId(id);
+    }
+
+    public SocioDTO actualizarSocio(int id, ActualizarSocioDTO socio) {
+
+        SocioDTO socioActual = socioDAO.buscarPorId(id);
+
+        if (socioActual == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El socio no existe");
+        }
+
+        if (socio.getNombre() == null || socio.getNombre().isBlank()
+                || socio.getNombre().length() > 40) {
+            throw new IllegalArgumentException("El nombre no es válido");
+        }
+
+        if (socio.getApellidos() == null || socio.getApellidos().isBlank()
+                || socio.getApellidos().length() > 80) {
+            throw new IllegalArgumentException("Los apellidos no son válidos");
+        }
+
+        if (socio.getEmail() == null
+                || !socio.getEmail().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
+                || socio.getEmail().length() > 100) {
+            throw new IllegalArgumentException("El email no es válido");
+        }
+
+        if (socio.getFechaNacimiento() == null
+                || !socio.getFechaNacimiento().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("La fecha de nacimiento no es válida");
+        }
+
+        if (socio.getActivo() == null) {
+            throw new IllegalArgumentException("El estado activo es obligatorio");
+        }
+
+        if (!socioActual.getEmail().equalsIgnoreCase(socio.getEmail())
+                && socioDAO.existeEmail(socio.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe un socio registrado con ese correo electrónico");
+        }
+
+        socioDAO.actualizarSocio(id, socio);
+
+        return socioDAO.buscarPorId(id);
+    }
+
+    public void eliminarSocio(int id) {
+
+        SocioDTO socio = socioDAO.buscarPorId(id);
+
+        if (socio == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El socio no existe");
+        }
+
+        if (socioDAO.tienePrestamos(id)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "No se puede eliminar el socio porque tiene préstamos registrados");
+        }
+
+        socioDAO.eliminarSocio(id);
     }
 }

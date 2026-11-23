@@ -1,5 +1,6 @@
 package com.bibliotecadaniel.bibliotecadaniel.controller.rest;
 
+import com.bibliotecadaniel.bibliotecadaniel.dto.ActualizarSocioDTO;
 import com.bibliotecadaniel.bibliotecadaniel.dto.SocioDTO;
 import com.bibliotecadaniel.bibliotecadaniel.service.SocioService;
 import org.springframework.http.HttpStatus;
@@ -65,5 +66,28 @@ public class SocioRestController {
 
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
+    }
+    @PutMapping("/socios/{id}")
+    public ResponseEntity<SocioDTO> actualizarSocio(
+            @PathVariable int id,
+            @RequestBody ActualizarSocioDTO socio) {
+
+        try {
+            SocioDTO socioActualizado = socioService.actualizarSocio(id, socio);
+
+            return ResponseEntity.ok(socioActualizado);
+
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/socios/{id}")
+    public ResponseEntity<Void> eliminarSocio(@PathVariable int id) {
+
+        socioService.eliminarSocio(id);
+
+        return ResponseEntity.noContent().build();
     }
 }

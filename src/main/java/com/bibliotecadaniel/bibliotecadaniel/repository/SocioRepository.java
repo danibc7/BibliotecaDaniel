@@ -1,6 +1,7 @@
 
 package com.bibliotecadaniel.bibliotecadaniel.repository;
 
+import com.bibliotecadaniel.bibliotecadaniel.dto.ActualizarSocioDTO;
 import com.bibliotecadaniel.bibliotecadaniel.dto.NuevoSocioDTO;
 import com.bibliotecadaniel.bibliotecadaniel.dto.SocioDTO;
 import org.springframework.stereotype.Repository;
@@ -258,6 +259,76 @@ public class SocioRepository {
         }
 
         return null;
+    }
+    public int actualizarSocio(int id, ActualizarSocioDTO socio) {
+
+        String sql = """
+            UPDATE socios
+            SET nombre = ?,
+                apellidos = ?,
+                email = ?,
+                fecha_nacimiento = ?,
+                activo = ?
+            WHERE id = ?
+            """;
+
+        try (Connection conexion = dataSource.getConnection();
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setString(1, socio.getNombre());
+            ps.setString(2, socio.getApellidos());
+            ps.setString(3, socio.getEmail());
+            ps.setDate(4, java.sql.Date.valueOf(socio.getFechaNacimiento()));
+            ps.setBoolean(5, socio.getActivo());
+            ps.setInt(6, id);
+
+            return ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al actualizar el socio", e);
+        }
+    }
+
+    public boolean tienePrestamos(int id) {
+
+        String sql = """
+            SELECT COUNT(*)
+            FROM prestamos
+            WHERE id_socio = ?
+            """;
+
+        try (Connection conexion = dataSource.getConnection();
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al comprobar los préstamos del socio", e);
+        }
+
+        return false;
+    }
+    public int eliminarSocio(int id) {
+
+        String sql = "DELETE FROM socios WHERE id = ?";
+
+        try (Connection conexion = dataSource.getConnection();
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+
+            return ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al eliminar el socio", e);
+        }
     }
 }
 

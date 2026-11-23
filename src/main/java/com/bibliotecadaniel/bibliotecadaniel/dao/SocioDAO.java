@@ -5,6 +5,7 @@ import com.bibliotecadaniel.bibliotecadaniel.dto.NuevoSocioDTO;
 import com.bibliotecadaniel.bibliotecadaniel.dto.SocioDTO;
 import com.bibliotecadaniel.bibliotecadaniel.repository.SocioRepository;
 import org.springframework.stereotype.Repository;
+import com.bibliotecadaniel.bibliotecadaniel.dto.ActualizarSocioDTO;
 
 import java.util.List;
 
@@ -16,10 +17,12 @@ public class SocioDAO implements ISocioDAO {
     public SocioDAO(SocioRepository socioRepository) {
         this.socioRepository = socioRepository;
     }
+
     @Override
     public List<SocioDTO> listarTodos() {
         return socioRepository.listarTodos();
     }
+
     @Override
     public List<SocioDTO> buscarPorNombreApellidos(String nombreApellidos, String email, String estado) {
 
@@ -43,5 +46,20 @@ public class SocioDAO implements ISocioDAO {
     @Override
     public SocioDTO buscarPorId(int id) {
         return socioRepository.buscarPorId(id);
+    }
+
+    @Override
+    public int actualizarSocio(int id, ActualizarSocioDTO socio) {
+        return socioRepository.actualizarSocio(id, socio);
+    }
+
+    @Override
+    public boolean tienePrestamos(int id) {
+        return socioRepository.tienePrestamos(id);
+    }
+
+    @Override
+    public int eliminarSocio(int id) {
+        return socioRepository.eliminarSocio(id);
     }
 }

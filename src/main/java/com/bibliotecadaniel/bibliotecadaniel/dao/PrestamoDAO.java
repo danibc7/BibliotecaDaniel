@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import com.bibliotecadaniel.bibliotecadaniel.dto.PrestamoAbiertoDTO;
 import java.math.BigDecimal;
 import com.bibliotecadaniel.bibliotecadaniel.dto.ResumenDevolucionDTO;
-
+import com.bibliotecadaniel.bibliotecadaniel.dto.PrestamoRestDTO;
 
 @Repository
 public class PrestamoDAO implements IPrestamoDAO {
@@ -89,6 +89,17 @@ public class PrestamoDAO implements IPrestamoDAO {
     @Override
     public LocalDate renovarPrestamo(int idPrestamo) {
         return prestamoRepository.renovarPrestamo(idPrestamo);
+    }
+
+    @Override
+    public List<PrestamoRestDTO> listarPrestamosRest(String socio, String titulo, String estado, LocalDate fechaDesde) {
+
+        return prestamoRepository.listarPrestamosRest(socio, titulo, estado, fechaDesde);
+    }
+
+    @Override
+    public PrestamoRestDTO buscarPrestamoRestPorId(int id) {
+        return prestamoRepository.buscarPrestamoRestPorId(id);
     }
 }
 
