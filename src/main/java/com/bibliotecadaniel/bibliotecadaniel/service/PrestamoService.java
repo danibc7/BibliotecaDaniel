@@ -257,4 +257,20 @@ public class PrestamoService {
 
         return prestamoDAO.buscarPrestamoRestPorId(idPrestamo);
     }
+    public PrestamoRestDTO devolverPrestamoRest(int idPrestamo) {
+
+        PrestamoRestDTO prestamo = prestamoDAO.buscarPrestamoRestPorId(idPrestamo);
+
+        if (prestamo == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El préstamo no existe");
+        }
+
+        if (prestamo.getFechaDevolucion() != null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "El préstamo ya ha sido devuelto");
+        }
+
+        prestamoDAO.devolverPrestamo(idPrestamo, false);
+
+        return prestamoDAO.buscarPrestamoRestPorId(idPrestamo);
+    }
 }

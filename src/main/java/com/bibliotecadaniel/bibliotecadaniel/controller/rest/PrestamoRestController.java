@@ -49,4 +49,12 @@ public class PrestamoRestController {
 
         return new ResponseEntity<>(prestamoCreado, HttpStatus.CREATED);
     }
+
+    @PutMapping("/prestamos/{id}/devolucion")
+    public ResponseEntity<PrestamoRestDTO> devolverPrestamo(@PathVariable int id) {
+
+        PrestamoRestDTO prestamoDevuelto = prestamoService.devolverPrestamoRest(id);
+
+        return ResponseEntity.ok(prestamoDevuelto);
+    }
 }
