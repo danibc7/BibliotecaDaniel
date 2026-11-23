@@ -25,7 +25,7 @@ public interface IPrestamoDAO {
 
     void guardarPrestamo(int idSocio, int idCopia, LocalDate fechaPrestamo, LocalDate fechaLimite);
 
-    void registrarPrestamoSeguro(int idSocio, int idCopia, LocalDate fechaPrestamo, LocalDate fechaLimite);
+    int registrarPrestamoSeguro(int idSocio, int idCopia, LocalDate fechaPrestamo, LocalDate fechaLimite);
 
     ResumenPrestamoDTO obtenerResumenPrestamo(int idSocio, int idCopia, LocalDate fechaPrestamo, LocalDate fechaLimite);
 
@@ -42,6 +42,12 @@ public interface IPrestamoDAO {
     List<PrestamoRestDTO> listarPrestamosRest(String socio, String titulo, String estado, LocalDate fechaDesde);
 
     PrestamoRestDTO buscarPrestamoRestPorId(int id);
+
+    boolean existeSocio(int idSocio);
+
+    boolean existeCopia(int idCopia);
+
+    boolean socioActivo(int idSocio);
 
 }
 

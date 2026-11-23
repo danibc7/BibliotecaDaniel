@@ -52,9 +52,9 @@ public class PrestamoDAO implements IPrestamoDAO {
     }
 
     @Override
-    public void registrarPrestamoSeguro(int idSocio, int idCopia, LocalDate fechaPrestamo, LocalDate fechaLimite) {
+    public int registrarPrestamoSeguro(int idSocio, int idCopia, LocalDate fechaPrestamo, LocalDate fechaLimite) {
 
-        prestamoRepository.registrarPrestamoSeguro(idSocio, idCopia, fechaPrestamo, fechaLimite);
+        return prestamoRepository.registrarPrestamoSeguro(idSocio, idCopia, fechaPrestamo, fechaLimite);
     }
 
     @Override
@@ -100,6 +100,21 @@ public class PrestamoDAO implements IPrestamoDAO {
     @Override
     public PrestamoRestDTO buscarPrestamoRestPorId(int id) {
         return prestamoRepository.buscarPrestamoRestPorId(id);
+    }
+
+    @Override
+    public boolean existeSocio(int idSocio) {
+        return prestamoRepository.existeSocio(idSocio);
+    }
+
+    @Override
+    public boolean existeCopia(int idCopia) {
+        return prestamoRepository.existeCopia(idCopia);
+    }
+
+    @Override
+    public boolean socioActivo(int idSocio) {
+        return prestamoRepository.socioActivo(idSocio);
     }
 }
 

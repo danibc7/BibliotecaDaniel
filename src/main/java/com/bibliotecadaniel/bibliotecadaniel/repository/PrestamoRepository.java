@@ -5,12 +5,8 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
-import java.sql.Date;
 import java.time.Period;
 import com.bibliotecadaniel.bibliotecadaniel.dto.ResumenPrestamoDTO;
 import com.bibliotecadaniel.bibliotecadaniel.dto.PrestamoListadoDTO;
@@ -223,7 +219,7 @@ public class PrestamoRepository {
             }
         }
     }
-    public void registrarPrestamoSeguro(int idSocio, int idCopia, LocalDate fechaPrestamo, LocalDate fechaLimite) {
+    public int registrarPrestamoSeguro(int idSocio, int idCopia, LocalDate fechaPrestamo, LocalDate fechaLimite) {
 
         try (Connection conexion = dataSource.getConnection()) {
 
@@ -236,23 +232,27 @@ public class PrestamoRepository {
 
                 bloquearCopia(conexion, idCopia);
 
-                if (contarPrestamosAbiertos(conexion, idSocio) >= 3) {
-                    throw new IllegalArgumentException("El socio ya tiene 3 préstamos abiertos");
+
+                if (!copiaDisponible(conexion, idCopia)) {
+                    throw new IllegalArgumentException(
+                            "La copia seleccionada no está disponible");
                 }
+
+                if (contarPrestamosAbiertos(conexion, idSocio) >= 3) {
+                    throw new IllegalArgumentException(
+                            "El socio ya tiene 3 préstamos abiertos");
+                }
+
+                comprobarEdadPegi(conexion, idSocio, idCopia);
 
                 if (tienePrestamosVencidos(conexion, idSocio)) {
                     throw new IllegalArgumentException("El socio tiene préstamos vencidos pendientes de devolución");
                 }
 
-                if (!copiaDisponible(conexion, idCopia)) {
-                    throw new IllegalArgumentException("La copia seleccionada no está disponible");
-                }
-
-                comprobarEdadPegi(conexion, idSocio, idCopia);
-
-                insertarPrestamo(conexion, idSocio, idCopia, fechaPrestamo, fechaLimite);
+                int idPrestamo = insertarPrestamo(conexion, idSocio, idCopia, fechaPrestamo, fechaLimite);
 
                 conexion.commit();
+                return idPrestamo;
 
             } catch (Exception e) {
                 conexion.rollback();
@@ -395,8 +395,8 @@ public class PrestamoRepository {
         }
     }
 
-    public void insertarPrestamo(Connection conexion, int idSocio, int idCopia, LocalDate fechaPrestamo, LocalDate fechaLimite) throws SQLException {
-
+    public int insertarPrestamo(Connection conexion, int idSocio, int idCopia, LocalDate fechaPrestamo, LocalDate fechaLimite)
+            throws SQLException {
         String sql = """
             INSERT INTO prestamos
             (id_socio, id_copia, fecha_prestamo,
@@ -404,7 +404,7 @@ public class PrestamoRepository {
             VALUES (?, ?, ?, ?, NULL, 0.00)
             """;
 
-        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+        try (PreparedStatement ps = conexion.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, idSocio);
             ps.setInt(2, idCopia);
@@ -412,6 +412,13 @@ public class PrestamoRepository {
             ps.setDate(4, Date.valueOf(fechaLimite));
 
             ps.executeUpdate();
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+            throw new SQLException("No se ha obtenido el ID del préstamo");
         }
     }
 
@@ -1008,4 +1015,72 @@ public class PrestamoRepository {
 
         return null;
     }
+    public boolean existeSocio(int idSocio) {
+
+        String sql = "SELECT COUNT(*) FROM socios WHERE id = ?";
+
+        try (Connection conexion = dataSource.getConnection();
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idSocio);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al comprobar si existe el socio", e);
+        }
+
+        return false;
+    }
+    public boolean existeCopia(int idCopia) {
+
+        String sql = "SELECT COUNT(*) FROM copias WHERE id = ?";
+
+        try (Connection conexion = dataSource.getConnection();
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idCopia);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al comprobar si existe la copia", e);
+        }
+
+        return false;
+    }
+
+    public boolean socioActivo(int idSocio) {
+
+        String sql = "SELECT activo FROM socios WHERE id = ?";
+
+        try (Connection conexion = dataSource.getConnection();
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idSocio);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next()) {
+                    return rs.getBoolean("activo");
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al comprobar si el socio está activo", e);
+        }
+
+        return false;
+    }
+
 }

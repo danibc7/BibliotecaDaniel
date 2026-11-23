@@ -1,8 +1,10 @@
 package com.bibliotecadaniel.bibliotecadaniel.controller.rest;
 
+import com.bibliotecadaniel.bibliotecadaniel.dto.NuevoPrestamoDTO;
 import com.bibliotecadaniel.bibliotecadaniel.dto.PrestamoRestDTO;
 import com.bibliotecadaniel.bibliotecadaniel.service.PrestamoService;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,5 +41,12 @@ public class PrestamoRestController {
         PrestamoRestDTO prestamo = prestamoService.buscarPrestamoRestPorId(id);
 
         return ResponseEntity.ok(prestamo);
+    }
+    @PostMapping("/prestamos")
+    public ResponseEntity<PrestamoRestDTO> registrarPrestamo(@RequestBody NuevoPrestamoDTO prestamo) {
+
+        PrestamoRestDTO prestamoCreado = prestamoService.registrarPrestamoRest(prestamo);
+
+        return new ResponseEntity<>(prestamoCreado, HttpStatus.CREATED);
     }
 }

@@ -134,4 +134,127 @@ public class PrestamoService {
 
         return prestamo;
     }
+
+    public void validarPrestamoRest(NuevoPrestamoDTO prestamo) {
+
+        if (prestamo == null
+                || prestamo.getIdSocio() == null
+                || prestamo.getIdCopia() == null) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Debes indicar el socio y la copia"
+            );
+        }
+
+        int idSocio = prestamo.getIdSocio();
+        int idCopia = prestamo.getIdCopia();
+
+        if (!prestamoDAO.existeSocio(idSocio)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El socio no existe");
+        }
+
+        if (!prestamoDAO.existeCopia(idCopia)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "La copia no existe");
+        }
+
+        if (!prestamoDAO.socioActivo(idSocio)) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "RN-1: El socio debe estar activo");
+        }
+
+        if (!prestamoDAO.copiaDisponible(idCopia)) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "RN-2: La copia no está disponible");
+        }
+
+        if (prestamoDAO.contarPrestamosAbiertos(idSocio) >= 3) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "RN-3: El socio ya tiene 3 préstamos abiertos");
+        }
+
+        int[] datosVideojuego = prestamoDAO.obtenerDatosVideojuego(idCopia);
+
+        int pegi = datosVideojuego[0];
+
+        LocalDate fechaNacimiento = prestamoDAO.obtenerNacimientoSocio(idSocio);
+
+        int edad = Period.between(fechaNacimiento, LocalDate.now()).getYears();
+
+        if (edad < pegi) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "RN-4: El socio tiene " + edad
+                            + " años y el juego requiere PEGI " + pegi);
+        }
+
+
+        if (prestamoDAO.tienePrestamosVencidos(idSocio)) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "RN-5: El socio tiene préstamos vencidos sin devolver");
+        }
+    }
+    public PrestamoRestDTO registrarPrestamoRest(NuevoPrestamoDTO prestamo) {
+
+        validarPrestamoRest(prestamo);
+
+        int idSocio = prestamo.getIdSocio();
+        int idCopia = prestamo.getIdCopia();
+
+        int[] datosVideojuego = prestamoDAO.obtenerDatosVideojuego(idCopia);
+
+        int anioLanzamiento = datosVideojuego[1];
+
+        LocalDate fechaPrestamo = LocalDate.now();
+
+        int anioActual = fechaPrestamo.getYear();
+
+        int diasPrestamo;
+
+        if (anioLanzamiento >= anioActual - 1) {
+            diasPrestamo = 7;
+        } else {
+            diasPrestamo = 15;
+        }
+
+        LocalDate fechaLimite = fechaPrestamo.plusDays(diasPrestamo);
+
+        int idPrestamo;
+
+        try {
+            idPrestamo = prestamoDAO.registrarPrestamoSeguro(idSocio, idCopia, fechaPrestamo, fechaLimite);
+
+        } catch (IllegalArgumentException e) {
+
+            String mensaje = e.getMessage();
+
+            if (mensaje.equals("El socio no existe o está inactivo")) {
+                if (!prestamoDAO.existeSocio(idSocio)) {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El socio no existe");
+                }
+
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "RN-1: El socio debe estar activo");
+            }
+
+            if (mensaje.equals("La copia seleccionada no existe")) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "La copia no existe");
+            }
+
+            if (mensaje.equals("El socio ya tiene 3 préstamos abiertos")) {
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "RN-3: El socio ya tiene 3 préstamos abiertos");
+            }
+
+            if (mensaje.equals("El socio tiene préstamos vencidos pendientes de devolución")) {
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                        "RN-5: El socio tiene préstamos vencidos sin devolver");
+            }
+
+            if (mensaje.equals("La copia seleccionada no está disponible")) {
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "RN-2: La copia no está disponible");
+            }
+
+            if (mensaje.equals("El socio no tiene la edad mínima para este videojuego")) {
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                        "RN-4: El socio no tiene la edad mínima para este videojuego");
+            }
+
+            throw e;
+        }
+
+        return prestamoDAO.buscarPrestamoRestPorId(idPrestamo);
+    }
 }
