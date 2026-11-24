@@ -10,6 +10,7 @@ import com.bibliotecadaniel.bibliotecadaniel.dto.NuevoSocioDTO;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
+
 @RestController
 @RequestMapping("/api")
 public class SocioRestController {
