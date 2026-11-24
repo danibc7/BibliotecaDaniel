@@ -25,7 +25,7 @@ public class DesarrolladoraRepository {
 
         List<DesarrolladoraDTO> desarrolladoras = new ArrayList<>();
 
-        String sql = "SELECT id, nombre FROM desarrolladoras ORDER BY nombre";
+        String sql = "SELECT id, nombre,pais FROM desarrolladoras ORDER BY nombre";
 
         try (Connection conexion = dataSource.getConnection();
              PreparedStatement ps = conexion.prepareStatement(sql);
@@ -33,7 +33,7 @@ public class DesarrolladoraRepository {
 
             while (rs.next()) {
 
-                DesarrolladoraDTO desarrolladora = new DesarrolladoraDTO(rs.getInt("id"), rs.getString("nombre"));
+                DesarrolladoraDTO desarrolladora = new DesarrolladoraDTO(rs.getInt("id"), rs.getString("nombre"),rs.getString("pais"));
 
                 desarrolladoras.add(desarrolladora);
             }
