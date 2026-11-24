@@ -257,7 +257,7 @@ public class PrestamoService {
 
         return prestamoDAO.buscarPrestamoRestPorId(idPrestamo);
     }
-    public PrestamoRestDTO devolverPrestamoRest(int idPrestamo) {
+    public PrestamoRestDTO devolverPrestamoRest(int idPrestamo, boolean copiaDanada) {
 
         PrestamoRestDTO prestamo = prestamoDAO.buscarPrestamoRestPorId(idPrestamo);
 
@@ -269,7 +269,7 @@ public class PrestamoService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "El préstamo ya ha sido devuelto");
         }
 
-        prestamoDAO.devolverPrestamo(idPrestamo, false);
+        prestamoDAO.devolverPrestamo(idPrestamo, copiaDanada);
 
         return prestamoDAO.buscarPrestamoRestPorId(idPrestamo);
     }

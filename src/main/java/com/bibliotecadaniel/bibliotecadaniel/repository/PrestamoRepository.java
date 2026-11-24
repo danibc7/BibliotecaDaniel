@@ -898,13 +898,19 @@ public class PrestamoRepository {
                     long diasRetraso = 0;
 
                     if (fechaDevolucion != null) {
+
                         estadoCalculado = "DEVUELTO";
 
+                        diasRetraso = Math.max(0, ChronoUnit.DAYS.between(fechaLimite, fechaDevolucion));
+
                     } else if (fechaLimite.isBefore(hoy)) {
+
                         estadoCalculado = "VENCIDO";
+
                         diasRetraso = ChronoUnit.DAYS.between(fechaLimite, hoy);
 
                     } else {
+
                         estadoCalculado = "EN_PLAZO";
                     }
 
@@ -981,14 +987,19 @@ public class PrestamoRepository {
                     long diasRetraso = 0;
 
                     if (fechaDevolucion != null) {
+
                         estado = "DEVUELTO";
 
+                        diasRetraso = Math.max(0, ChronoUnit.DAYS.between(fechaLimite, fechaDevolucion));
+
                     } else if (fechaLimite.isBefore(LocalDate.now())) {
+
                         estado = "VENCIDO";
-                        diasRetraso = ChronoUnit.DAYS.between(
-                                fechaLimite, LocalDate.now());
+
+                        diasRetraso = ChronoUnit.DAYS.between(fechaLimite, LocalDate.now());
 
                     } else {
+
                         estado = "EN_PLAZO";
                     }
 

@@ -51,9 +51,11 @@ public class PrestamoRestController {
     }
 
     @PutMapping("/prestamos/{id}/devolucion")
-    public ResponseEntity<PrestamoRestDTO> devolverPrestamo(@PathVariable int id) {
+    public ResponseEntity<PrestamoRestDTO> devolverPrestamo(
+            @PathVariable int id,
+            @RequestParam(defaultValue = "false") boolean copiaDanada) {
 
-        PrestamoRestDTO prestamoDevuelto = prestamoService.devolverPrestamoRest(id);
+        PrestamoRestDTO prestamoDevuelto = prestamoService.devolverPrestamoRest(id, copiaDanada);
 
         return ResponseEntity.ok(prestamoDevuelto);
     }
